@@ -49,7 +49,14 @@ def validate_assumptions_register(text: str) -> list[str]:
                 ("Scenario selection", ("Scenario selection",)),
             )
             for display_name, aliases in field_aliases:
-                if not any(_field(block, alias) for alias in aliases):
+                if display_name == "Scenario selection":
+                    has_heading = any(
+                        line.strip() == "- **Scenario selection:**"
+                        for line in block.splitlines()
+                    )
+                    if not has_heading:
+                        errors.append(f"{item_id}: OPEN item missing {display_name}")
+                elif not any(_field(block, alias) for alias in aliases):
                     errors.append(f"{item_id}: OPEN item missing {display_name}")
             scenario_start = block.find("**Scenario selection:**")
             scenario_text = block[scenario_start:] if scenario_start >= 0 else ""
@@ -148,7 +155,7 @@ def test_open_assumption_without_owner_or_falsification_fails_contract() -> None
     assert any("missing owner" in item for item in errors)
     assert any("Falsification method" in item for item in errors)
     assert any("Evidence required" in item for item in errors)
-    assert any("Scenario selection" in item for item in errors)
+    assert any("scenario outcome" in item for item in errors)
 
 
 def test_roadmap_rejects_self_and_undeclared_dependencies() -> None:
