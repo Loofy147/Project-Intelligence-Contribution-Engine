@@ -72,7 +72,7 @@ def validate_assumptions_register(text: str) -> list[str]:
 
 def validate_roadmap(text: str, assumption_ids: set[str]) -> list[str]:
     errors: list[str] = []
-    headings = list(re.finditer(r"^### (GATE-\d{2}) — .+$", text, re.MULTILINE))
+    headings = list(re.finditer(r"^### (GATE-\\d{2}) — .+$", text, re.MULTILINE))
     if not headings:
         return ["No roadmap gates found"]
 
@@ -81,21 +81,27 @@ def validate_roadmap(text: str, assumption_ids: set[str]) -> list[str]:
     if len(gate_set) != len(gate_ids):
         errors.append("Duplicate gate ID")
 
+    blocks: dict[str, str] = {}
+    for index, match in enumerate(headings):
+        if index + 1 < len(headings):
+            block_end = headings[index + 1].start()
+        else:
+            block_end = text.find("## Capability baseline", match.end())
+            if block_end < match.end():
+                block_end = text.find("## Release gate", match.end())
+            if block_end < match.end():
+                block_end = len(text)
+        blocks[match.group(1)] = text[match.start():block_end]
+
+    gate_states = {gate_id: _field(block, "State") for gate_id, block in blocks.items()}
     graph_start = text.find("## Dependency graph")
     graph_end = text.find("## Gate register", graph_start + 1) if graph_start >= 0 else -1
     if graph_start >= 0 and graph_end > graph_start:
-        graph_ids = set(re.findall(r"GATE-\d{2}", text[graph_start:graph_end]))
+        graph_ids = set(re.findall(r"GATE-\\d{2}", text[graph_start:graph_end]))
         errors.extend(f"Dependency graph references undeclared gate {item}" for item in sorted(graph_ids - gate_set))
 
-    for index, match in enumerate(headings):
-        gate_id = match.group(1)
-        end = headings[index + 1].start() if index + 1 < len(headings) else text.find("## Capability baseline", match.end())
-        if end < match.end():
-            end = text.find("## Release gate", match.end())
-        if end < match.end():
-            end = len(text)
-        block = text[match.start():end]
-        state = _field(block, "State")
+    for gate_id, block in blocks.items():
+        state = gate_states[gate_id]
         if state not in _VALID_GATE_STATES:
             errors.append(f"{gate_id}: invalid or missing state")
         if not _field(block, "Owner"):
@@ -104,26 +110,32 @@ def validate_roadmap(text: str, assumption_ids: set[str]) -> list[str]:
         if dependencies is None:
             errors.append(f"{gate_id}: missing dependency declaration")
         else:
-            referenced_gates = set(re.findall(r"GATE-\d{2}", dependencies))
+            referenced_gates = set(re.findall(r"GATE-\\d{2}", dependencies))
             if gate_id in referenced_gates:
                 errors.append(f"{gate_id}: gate cannot depend on itself")
             errors.extend(
                 f"{gate_id}: dependency {dependency} is undeclared"
                 for dependency in sorted(referenced_gates - gate_set)
             )
-        referenced_assumptions = set(re.findall(r"A-\d{3}", block))
+            if state == "READY":
+                # A semicolon separates optional/conditional dependencies from mandatory ones.
+                mandatory_text = dependencies.split(";", 1)[0]
+                mandatory_gates = set(re.findall(r"GATE-\\d{2}", mandatory_text))
+                for dependency in sorted(mandatory_gates):
+                    if dependency in gate_set and gate_states.get(dependency) != "PASSED":
+                        errors.append(f"{gate_id}: READY gate dependency {dependency} is not PASSED")
+        referenced_assumptions = set(re.findall(r"A-\\d{3}", block))
         errors.extend(
             f"{gate_id}: assumption {assumption} is undeclared"
             for assumption in sorted(referenced_assumptions - assumption_ids)
         )
 
-    referenced_assumptions = set(re.findall(r"A-\d{3}", text))
+    referenced_assumptions = set(re.findall(r"A-\\d{3}", text))
     errors.extend(
         f"Roadmap references undeclared assumption {assumption}"
         for assumption in sorted(referenced_assumptions - assumption_ids)
     )
     return errors
-
 
 def test_committed_assumptions_register_satisfies_contract() -> None:
     register = REGISTER_PATH.read_text(encoding="utf-8")
@@ -137,6 +149,31 @@ def test_committed_roadmap_has_valid_gate_states_and_references() -> None:
     assumptions = set(re.findall(r"^### (A-\d{3}) — .+$", register, re.MULTILINE))
     errors = validate_roadmap(roadmap, assumptions)
     assert errors == [], "\n".join(errors)
+
+
+def test_ready_gate_requires_mandatory_dependencies_to_be_passed() -> None:
+    roadmap = """# Roadmap
+
+## Dependency graph
+GATE-00
+GATE-01
+
+## Gate register
+
+### GATE-00 — Baseline
+
+- **State:** BLOCKED
+- **Owner:** Maintainer
+- **Dependencies:** None
+
+### GATE-01 — Dependent capability
+
+- **State:** READY
+- **Owner:** Maintainer
+- **Dependencies:** GATE-00
+"""
+    errors = validate_roadmap(roadmap, set())
+    assert any("READY gate dependency GATE-00 is not PASSED" in item for item in errors)
 
 
 def test_open_assumption_without_owner_or_falsification_fails_contract() -> None:
