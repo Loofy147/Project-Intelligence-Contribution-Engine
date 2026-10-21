@@ -24,6 +24,14 @@
 - **Research references:** [sources/version/freshness; note if none materially changed the decision]
 - **Canonical roadmap gate and assumptions:** [gate IDs; OPEN assumptions and selected scenario]
 
+## Existing context recovered
+
+- **Notion operating records searched/fetched:** [page names and URLs; note access limits]
+- **Project baselines/handoffs and canonical work items:** [source IDs/URLs and which was authoritative]
+- **Relevant account/integration/provider records inspected:** [metadata and current permission evidence; never include secret values]
+- **Prior research/decisions reused:** [links and freshness check]
+- **Conflicts/unavailable sources:** [exact uncertainty; do not ask the user to repaste data until available sources were checked]
+
 ## Evidence inspected
 
 - [File/function/test/source record and what it proved.]
