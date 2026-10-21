@@ -8,7 +8,7 @@ Project Intelligence & Contribution Engine (PIE) is a local-first Python CLI tha
 
 **When given an outcome, infer the professional work required to deliver it. Do not require the user to enumerate routine responsibilities such as research, architecture, testing, security, business reasoning, integrations, documentation, contributor guidance, and handoff.** Perform the task in the repository when safe and possible; keep scope proportionate and prove the result.
 
-The [Professional Operating Charter](docs/OPERATING-CHARTER.md) is the baseline for every task. It defines the work loop, research expectations, engineering/business responsibilities, data/tool governance, decision handling, authority boundaries, and definition of done.
+The [Autonomous Project Intelligence & Engineering Standard in Notion](https://app.notion.com/p/4004508c33af817fb47fef96a8a69d43) is the portfolio-level operating authority. The local [PIE Operating Adapter](docs/OPERATING-CHARTER.md) applies it to this repository without duplicating the full standard. Search/fetch the relevant Notion goals, constraints, handoffs, work items, research, accounts/integrations and change records before asking for context or creating another record.
 
 ## Mandatory startup sequence
 
@@ -25,7 +25,8 @@ The [Professional Operating Charter](docs/OPERATING-CHARTER.md) is the baseline 
 
 - `src/project_intelligence/`: core Python package and CLI.
 - `tests/`: behavior and regression tests.
-- `docs/OPERATING-CHARTER.md`: default professional operating responsibilities, research, evidence, authority, and definition of done.
+- `docs/OPERATING-CHARTER.md`: PIE-specific operating adapter and context-recovery entry point; the complete portfolio standard lives in Notion.
+- [Autonomous Project Intelligence & Engineering Standard](https://app.notion.com/p/4004508c33af817fb47fef96a8a69d43): canonical portfolio-level execution and context-recovery procedure.
 - `docs/PORTFOLIO-CONTEXT.md`: related project roles, current high-level boundaries, canonical source links, and rules for cross-project work.
 - `docs/ARCHITECTURE.md`: architecture, data flow, trust boundaries, and extension policy.
 - `docs/ROADMAP.md`: dependency-gated scenario graph; preserve its evidence-based completion rules and never substitute dates for dependencies.
@@ -52,7 +53,7 @@ The [Professional Operating Charter](docs/OPERATING-CHARTER.md) is the baseline 
 11. Retrieve before clarification: existing context in Notion, repositories, connected tool/account registries, and prior research must be checked before asking the user to restate goals, constraints, identities, decisions or integrations.
 12. Planning is evidence-driven, not date-driven. Every OPEN assumption must have a named owner, falsification method, required evidence, and scenario outcomes in `docs/ASSUMPTIONS-REGISTER.md`. Never silently resolve a policy question for the maintainer. Update the roadmap and register together when a gate or assumption changes.
 13. Relationship claims require canonical relation evidence. For GitHub issue/PR links, accept only an explicit timeline cross-reference event or maintainer-confirmed mapping; a relation never proves resolution or acceptance.
-14. Apply `docs/OPERATING-CHARTER.md` proactively. Discover relevant tools, APIs, MCPs, datasets, services, standards, and open-source options when they may materially improve an outcome; assess security, rights, cost, reliability, and fit, and never add or invoke them merely for decoration. Do not wait for the user to prompt each professional responsibility.
+14. Apply the canonical Notion operating standard and local PIE adapter proactively. Discover relevant tools, APIs, MCPs, datasets, services, standards, and open-source options when they may materially improve an outcome; assess security, rights, cost, reliability, and fit, and never add or invoke them merely for decoration. Do not wait for the user to prompt each professional responsibility.
 
 ## Definition of done
 
