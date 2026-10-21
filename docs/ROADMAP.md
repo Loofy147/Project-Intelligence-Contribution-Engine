@@ -38,7 +38,7 @@ GATE-00 Current baseline (PASSED)
   │     └── GATE-06 AI review value experiment (evaluates A-004)
   ├── GATE-02 Source snapshot comparison and freshness (PASSED)
   │     └── GATE-03 Explicit issue/PR relationships (PASSED; evaluates A-005)
-  └── GATE-12 Planning-contract validation in CI (IN_PROGRESS)
+  └── GATE-12 Planning-contract validation in CI (PASSED)
   ├── GATE-11 Keyword-search quality (BLOCKED by the policy target in A-003)
   ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
   └── GATE-08 Persistence decision (DEFERRED until a concrete requirement is demonstrated; monitors A-007)
@@ -198,12 +198,13 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-12 — Enforce assumptions-register and roadmap structure in CI
 
-- **State:** IN_PROGRESS
+- **State:** PASSED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00
 - **Observed gap:** The register and roadmap describe required fields, but no automated test currently prevents an edit from removing an OPEN item's owner, falsification method, evidence requirements, or scenario branch.
 - **Purpose:** Make the planning rules enforceable without adding a runtime dependency or maintaining a second source of truth.
 - **Exit criteria:** Tests parse the committed Markdown files; verify unique IDs, valid states, required fields for every OPEN item, recorded evidence for resolved assumptions, declared owners/dependencies for all gates, referential integrity for gate/assumption IDs, and that every READY gate has all mandatory dependencies PASSED; malformed fixtures are rejected; the core test and CLI-help workflows pass.
+- **Evidence:** Core tests, including the planning-contract tests, passed on Python 3.11 and 3.12 in [workflow run 39661636162](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39661636162) for commit [`8ec9644d`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/commit/8ec9644d6cf8f85ff125e7b4db70e29c7832dcc7). The OmniRoute Workbench checks also passed on the same commit [run 39661636207](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39661636207). The follow-up roadmap edit only records this result and the exact acceptance wording.
 - **Boundary:** Structural checks do not establish that cited evidence is true or that an owner decision is wise. Human review of substance remains necessary.
 
 ## Capability baseline already established
