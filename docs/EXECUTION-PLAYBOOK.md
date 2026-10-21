@@ -1,6 +1,6 @@
 # Task Execution Playbook
 
-This is the canonical procedure for turning a request or tracked work item into a tested repository change. Follow it in order. Do not replace execution with another planning document.
+This is the canonical procedure for turning a request or tracked work item into a tested repository change. Follow it in order. The dependency-gated roadmap and assumptions register are the planning source of truth; do not replace them with dates or a second plan.
 
 ## 1. Choose the task source
 
@@ -9,8 +9,9 @@ Apply these rules in order:
 1. **Direct user request:** implement the behavior or change the user actually requested.
 2. **Named issue, PR, or work-item ID:** use that exact record. Read its body/criteria and linked implementation; do not substitute a similarly worded item.
 3. **Existing repository-native registry:** use it only when the project manifest explicitly declares it and its status is on the allowlist. The registry stays authoritative.
-4. **Roadmap continuation with no named task:** choose the first unchecked, executable item in `docs/ROADMAP.md`, reading top to bottom by milestone and item order. Before implementation, check dependencies, current code, relevant test coverage, and whether a new decision is required.
-5. **No safe executable task:** do a focused inspection and identify the smallest missing fact or prerequisite. Do not invent tasks or report speculation as a confirmed defect.
+4. **Roadmap continuation with no named task:** read `docs/ROADMAP.md` and `docs/ASSUMPTIONS-REGISTER.md`. Select a gate only when its dependencies are PASSED and required decisions are resolved. Among READY gates, prioritize safety/data integrity, downstream gates unblocked, the smallest decisive end-to-end test, then stable gate ID. Gate IDs are not a schedule.
+5. **OPEN assumptions:** inspect the register entry before deciding. Run its falsification method when evidence can answer it; require the named owner's decision for product-policy choices. Do not silently pick a branch. Every OPEN entry must specify owner, falsification method, evidence, and scenario outcomes.
+6. **No safe executable task:** do a focused inspection and identify the smallest missing fact or prerequisite. Do not invent tasks or report speculation as a confirmed defect.
 
 Never promote a heuristic draft, a model suggestion, or a roadmap hypothesis above an existing canonical issue/registry record. Do not create duplicate work items just to make the task look actionable.
 
@@ -27,7 +28,7 @@ git diff --stat
 
 If a command cannot run because there is no local checkout or shell, state that limitation accurately. Do not imply that the remote repository was locally tested.
 
-Read the relevant docs and the implementation/tests, not just the README. Find:
+Read the relevant docs and the implementation/tests, not just the README. For roadmap work, read the gate and linked assumptions first; identify which branch the evidence permits. Find:
 - the current code path for the behavior;
 - its input and output contract;
 - nearby tests and error paths;
@@ -121,6 +122,16 @@ Tests use a fake upstream and should not need live provider keys. Do not use rea
 
 GitHub snapshot and real-project evaluation workflows can require network access and are separate from unit tests. Run them only when relevant. A target project's successful indexing is not proof that its application is correct. Preserve target repositories as read-only.
 
+### Read-only source snapshot comparison
+
+To compare two previously captured issue snapshots, optionally including matching pull-request snapshots:
+
+~~~bash
+pie compare-snapshots --previous-issues .project-intelligence/issues-before.json --current-issues .project-intelligence/issues-after.json --previous-pulls .project-intelligence/pulls-before.json --current-pulls .project-intelligence/pulls-after.json
+~~~
+
+Both PR paths must be supplied together or both omitted. Snapshots must refer to the same repository and supported schema. Use `--state all` for both time points if full-state comparison is needed. Filtered queries can omit records; absence never proves closure, deletion, resolution, or completion. The report compares visible metadata only and never changes source records or automatically links issues to PRs.
+
 ## 6. Review the change before declaring success
 
 Inspect the entire final diff and answer every question:
@@ -146,7 +157,7 @@ Do not mark a roadmap item complete merely because code exists or CI is green. T
 
 ## 8. Handoff so another model can continue without this conversation
 
-Update the task's canonical record where possible. For cross-session work, complete [the handoff template](SESSION-HANDOFF-TEMPLATE.md) with:
+Update the task's canonical record where possible. If an assumption was evaluated, record its outcome, evidence, and scenario in `docs/ASSUMPTIONS-REGISTER.md`; update dependent gate states in `docs/ROADMAP.md` in the same change. For cross-session work, complete [the handoff template](SESSION-HANDOFF-TEMPLATE.md) with:
 - repository URL, branch, exact HEAD SHA, and date;
 - objective and canonical task source;
 - exact files changed and their roles;
