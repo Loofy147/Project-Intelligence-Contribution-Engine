@@ -203,7 +203,7 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 - **Dependencies:** GATE-00
 - **Observed gap:** The register and roadmap describe required fields, but no automated test currently prevents an edit from removing an OPEN item's owner, falsification method, evidence requirements, or scenario branch.
 - **Purpose:** Make the planning rules enforceable without adding a runtime dependency or maintaining a second source of truth.
-- **Exit criteria:** Tests parse the committed Markdown files; verify unique IDs, valid states, required fields for every OPEN item, recorded evidence for resolved assumptions, declared owners/dependencies for all gates, and referential integrity for gate/assumption IDs; malformed fixtures are rejected; the core test and CLI-help workflows pass.
+- **Exit criteria:** Tests parse the committed Markdown files; verify unique IDs, valid states, required fields for every OPEN item, recorded evidence for resolved assumptions, declared owners/dependencies for all gates, referential integrity for gate/assumption IDs, and that every READY gate has all mandatory dependencies PASSED; malformed fixtures are rejected; the core test and CLI-help workflows pass.
 - **Boundary:** Structural checks do not establish that cited evidence is true or that an owner decision is wise. Human review of substance remains necessary.
 
 ## Capability baseline already established
