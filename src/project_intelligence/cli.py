@@ -12,6 +12,7 @@ from project_intelligence.indexer import (
     load_index,
 )
 from project_intelligence.inventory import build_inventory, write_inventory
+from project_intelligence.github_issues import fetch_github_issues, write_issue_snapshot
 from project_intelligence.search import search_index
 from project_intelligence.tasks import (
     generate_draft_tasks,
@@ -82,6 +83,16 @@ def _parser() -> argparse.ArgumentParser:
         help=f"skip larger files (default: {DEFAULT_MAX_FILE_BYTES})",
     )
 
+    issues_parser = subcommands.add_parser(
+        "github-issues",
+        help="read-only snapshot of issues from a public GitHub repository",
+    )
+    issues_parser.add_argument("repository", help="public GitHub OWNER/REPO")
+    issues_parser.add_argument("--state", choices=("open", "closed", "all"), default="open")
+    issues_parser.add_argument("--json-output", type=Path, help="JSON snapshot path")
+    issues_parser.add_argument("--markdown-output", type=Path, help="Markdown index path")
+    issues_parser.add_argument("--timeout", type=float, default=20.0, help="per-request timeout in seconds")
+
     return parser
 
 
@@ -90,6 +101,31 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
+        if args.command == "github-issues":
+            snapshot = fetch_github_issues(
+                args.repository,
+                state=args.state,
+                timeout=args.timeout,
+            )
+            default_prefix = args.repository.replace("/", "--")
+            json_path = args.json_output or (
+                Path(".project-intelligence") / f"{default_prefix}-issues.json"
+            )
+            markdown_path = args.markdown_output or (
+                Path(".project-intelligence") / f"{default_prefix}-issues.md"
+            )
+            write_issue_snapshot(snapshot, json_path, format="json")
+            write_issue_snapshot(snapshot, markdown_path, format="markdown")
+            summary = snapshot["summary"]
+            print(
+                f"Read {summary['issues_found']} issues from {args.repository}: "
+                f"{summary['open']} open, {summary['closed']} closed."
+            )
+            print(f"JSON: {json_path.expanduser().resolve()}")
+            print(f"Report: {markdown_path.expanduser().resolve()}")
+            print("Read-only snapshot; no issue was created, changed, or closed.")
+            return 0
+
         if args.command == "index":
             root = Path(args.root).expanduser().resolve()
             output = args.output or (root / ".project-intelligence" / "index.json")

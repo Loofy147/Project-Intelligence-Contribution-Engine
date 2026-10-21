@@ -36,7 +36,7 @@ The first release is a local Python package with five responsibilities:
 - Task excerpt output applies basic credential-pattern redaction; do not treat that as a complete secret scanner.
 - Markdown and JSON reports avoid printing the absolute machine path by default.
 - Inventory results are filename/extension heuristics, not a semantic audit.
-- No network calls or AI provider calls occur.
+- Indexing and search remain local-only. The explicit `pie github-issues` subcommand makes read-only network requests to the public GitHub API; it does not authenticate, write, or publish.
 
 ## Explicit non-goals
 

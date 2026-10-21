@@ -28,7 +28,8 @@
 
 ## M3 — Existing workflow integrations
 
-- [ ] Map approved tasks to ContribQuest work items.
+- [x] Add an explicit read-only public GitHub issue snapshot command; preserve canonical issue URLs and exclude pull requests.
+- [ ] Reconcile reviewed issue/task evidence into ContribQuest without duplicating the source issue.
 - [ ] Reuse existing GitHub issues/PRs as evidence rather than duplicating records unnecessarily.
 - [ ] Add read-only GitHub inventory first; gate all write operations explicitly.
 - [ ] Keep XP and bounty state downstream of verified task completion.

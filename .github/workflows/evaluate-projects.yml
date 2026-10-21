@@ -83,6 +83,7 @@ jobs:
       - name: Build inventory and draft tasks
         env:
           PROJECT_ID: ${{ matrix.project_id }}
+          REPOSITORY: ${{ matrix.repository }}
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
           set -euo pipefail
@@ -96,6 +97,9 @@ jobs:
           pie tasks "$TARGET" --manifest "$MANIFEST" \
             --json-output "$OUT/tasks.json" \
             --markdown-output "$OUT/tasks.md"
+          pie github-issues "$REPOSITORY" --state open \
+            --json-output "$OUT/issues.json" \
+            --markdown-output "$OUT/issues.md"
           pie verify-tasks "$TARGET" --manifest "$MANIFEST" \
             --task-file "$OUT/tasks.json" > "$OUT/verification.txt"
 
@@ -114,6 +118,7 @@ jobs:
           root = Path(os.environ["GITHUB_WORKSPACE"]) / "artifacts" / project_id
           inventory = json.loads((root / "inventory.json").read_text(encoding="utf-8"))
           task_set = json.loads((root / "tasks.json").read_text(encoding="utf-8"))
+          issue_snapshot = json.loads((root / "issues.json").read_text(encoding="utf-8"))
           verification_text = (root / "verification.txt").read_text(encoding="utf-8")
           task_summary = task_set["summary"]
           languages = ", ".join(
@@ -136,6 +141,8 @@ jobs:
               f"- Draft tasks: {task_summary['total_drafts']} "
               f"({task_summary['observed_marker_tasks']} observed markers; "
               f"{task_summary['hypothesis_review_tasks']} hypotheses)",
+              f"- Existing GitHub issues: {issue_snapshot['summary']['issues_found']} "
+              f"({issue_snapshot['summary']['open']} open in this snapshot)",
               f"- Task kinds: {', '.join(f'{key}={value}' for key, value in sorted(kinds.items())) or 'none'}",
               "",
               "## Inventory hypotheses",
@@ -151,6 +158,12 @@ jobs:
               lines.append(f"- {evidence.get('path')}:{evidence.get('line_number')} — {task['title']}")
           if not observed:
               lines.append("- No source-marker drafts generated.")
+          lines.extend(["", "## Existing GitHub issues (canonical work records)", ""])
+          for issue in issue_snapshot["issues"][:10]:
+              labels = ", ".join(issue["labels"]) or "unlabeled"
+              lines.append(f"- [#{issue['number']} — {issue['title']}]({issue['url']}) ({issue['state']}; {labels})")
+          if not issue_snapshot["issues"]:
+              lines.append("- No issues found in the selected state.")
           lines.extend(["", "## Verification", "", "~~~text", verification_text.rstrip(), "~~~", ""])
           summary = "\n".join(lines)
           (root / "summary.md").write_text(summary, encoding="utf-8")
@@ -163,6 +176,8 @@ jobs:
               "review_signals": inventory["review_signals"],
               "task_summary": task_summary,
               "task_kinds": dict(kinds),
+              "github_issue_summary": issue_snapshot["summary"],
+              "github_issues": issue_snapshot["issues"][:25],
               "sample_observed_tasks": observed[:15],
               "sample_hypothesis_tasks": hypotheses[:10],
           }, indent=2) + "\n", encoding="utf-8")
