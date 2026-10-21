@@ -116,6 +116,19 @@ Replace `/path/to/local/contribquest-checkout` with a local checkout before runn
 
 The core Project Intelligence CLI does not require an AI service. For optional project-scoped model access, see the [OmniRoute Workbench integration](integrations/omniroute-workbench/README.md). It uses a separate [OmniRoute service](https://github.com/diegosouzapw/OmniRoute); review the integration guide's security limits before using it.
 
+
+### Optional structured AI task review
+
+The optional **pie ai-review** command sends a bounded allowlist of task metadata to the [OmniRoute Workbench](integrations/omniroute-workbench/README.md); it deliberately excludes source excerpts and file contents. It requires a project-scoped Workbench key in the **PIE_AI_API_KEY** environment variable. The default endpoint is loopback at http://127.0.0.1:20129/v1; remote gateways require the explicit **--allow-remote** flag. The result is a separate advisory report and never changes task state.
+
+~~~bash
+export PIE_AI_API_KEY='YOUR_PROJECT_WORKBENCH_KEY'
+pie ai-review --tasks .project-intelligence/tasks.json --output .project-intelligence/ai-review.json
+unset PIE_AI_API_KEY
+~~~
+
+See the [AI review gateway contract](docs/AI-REVIEW-GATEWAY.md) and [open-source reuse research](docs/OSS-REUSE-RESEARCH.md). Model output is untrusted; verify every recommendation before acting.
+
 ## Development
 
 ~~~bash

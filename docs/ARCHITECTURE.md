@@ -11,6 +11,9 @@
 - **Work-plan projection**: sorts existing issues by an explicit leading `[P0]`–`[P3]` title prefix, and keeps issues, proposed PRs, canonical registry items and engine-generated draft findings separate.
 - **CLI**: exposes index, search, inventory, GitHub snapshot, work-plan, task-draft and evidence-verification operations.
 
+
+- **Optional AI review adapter**: sends only allowlisted task metadata to a configured OpenAI-compatible Workbench, requires a project key, defaults to loopback, validates task IDs/enums/lengths, and writes a separate advisory report.
+
 ## Data flow
 
 1. Scan the explicitly selected local project.
@@ -22,6 +25,7 @@
 7. Verify saved evidence against the current source snapshot.
 8. When explicitly requested, fetch public GitHub issue/PR metadata and preserve original external identifiers and URLs.
 9. Build a read-only work-plan view without creating or changing external records.
+10. Optionally ask OmniRoute Workbench to review task metadata; response validation is local, and the output remains advisory only.
 
 ## Manifest allowlists
 

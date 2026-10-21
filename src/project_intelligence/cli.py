@@ -6,6 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from project_intelligence.ai_review import review_tasks
 from project_intelligence.indexer import (
     DEFAULT_MAX_FILE_BYTES,
     build_index,
@@ -115,6 +116,25 @@ def _parser() -> argparse.ArgumentParser:
     workplan_parser.add_argument("--json-output", type=Path, help="JSON workplan output")
     workplan_parser.add_argument("--markdown-output", type=Path, help="Markdown workplan output")
 
+    ai_parser = subcommands.add_parser(
+        "ai-review", help="optionally request a metadata-only review through OmniRoute Workbench"
+    )
+    ai_parser.add_argument(
+        "--tasks", type=Path, default=Path(".project-intelligence/tasks.json"),
+        help="task JSON file (default: .project-intelligence/tasks.json)",
+    )
+    ai_parser.add_argument(
+        "--output", type=Path, default=Path(".project-intelligence/ai-review.json"),
+        help="advisory JSON output path (default: .project-intelligence/ai-review.json)",
+    )
+    ai_parser.add_argument("--base-url", help="local Workbench base URL; defaults to PIE_AI_BASE_URL or loopback")
+    ai_parser.add_argument("--timeout", type=float, default=60.0, help="gateway timeout in seconds (maximum 180)")
+    ai_parser.add_argument("--max-tasks", type=int, default=20, help="maximum candidates to send (1-50)")
+    ai_parser.add_argument(
+        "--allow-remote", action="store_true",
+        help="allow a non-loopback AI gateway; task metadata will leave this machine",
+    )
+
     return parser
 
 
@@ -123,6 +143,23 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
+        if args.command == "ai-review":
+            review = review_tasks(
+                args.tasks,
+                args.output,
+                base_url=args.base_url,
+                allow_remote=args.allow_remote,
+                timeout=args.timeout,
+                max_tasks=args.max_tasks,
+            )
+            print(
+                "AI review wrote " + str(len(review["reviews"])) + " recommendations; "
+                + str(review["tasks_omitted_by_limit"]) + " candidates omitted by the task limit."
+            )
+            print("Advisory report: " + str(args.output.expanduser().resolve()))
+            print("No task, source file, GitHub record, XP, or bounty state was changed.")
+            return 0
+
         if args.command == "github-issues":
             snapshot = fetch_github_issues(
                 args.repository,
