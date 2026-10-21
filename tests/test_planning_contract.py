@@ -149,7 +149,6 @@ def test_open_assumption_without_owner_or_falsification_fails_contract() -> None
 - **Question/claim:** Something may be true.
 - **Evidence required:**
 - **Scenario selection:**
-  - `SCENARIO_A` → continue
 """
     errors = validate_assumptions_register(bad_register)
     assert any("missing owner" in item for item in errors)
