@@ -11,24 +11,6 @@ _VALID_ASSUMPTION_STATES = {"OPEN", "SUPPORTED", "FALSIFIED", "INCONCLUSIVE", "D
 _VALID_GATE_STATES = {"PASSED", "READY", "IN_PROGRESS", "BLOCKED", "FAILED", "DEFERRED"}
 
 
-def _section_blocks(text: str, heading_pattern: str, next_heading_pattern: str) -> dict[str, str]:
-    matches = list(re.finditer(heading_pattern, text, re.MULTILINE))
-    blocks: dict[str, str] = {}
-    for index, match in enumerate(matches):
-        key = match.group(1)
-        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
-        block = text[match.start():end]
-        next_heading = re.search(next_heading_pattern, block[match.end() - match.start():], re.MULTILINE)
-        if next_heading:
-            end_offset = match.end() + next_heading.start()
-            block = text[match.start():end_offset]
-        if key in blocks:
-            blocks[key] += "\n" + block
-        else:
-            blocks[key] = block
-    return blocks
-
-
 def _field(block: str, name: str) -> str | None:
     # Parse one Markdown bullet at a time so an empty value cannot borrow the next line.
     prefix = f"- **{name}:**"
@@ -61,13 +43,14 @@ def validate_assumptions_register(text: str) -> list[str]:
         if not _field(block, "Owner"):
             errors.append(f"{item_id}: missing owner")
         if state == "OPEN":
-            for name, pattern in (
-                ("Falsification method", r"^- \*\*Falsification(?: / decision)? method:\*\*\s*\S"),
-                ("Evidence required", r"^- \*\*Evidence required:\*\*\s*\S"),
-                ("Scenario selection", r"^- \*\*Scenario selection:\*\*\s*\S"),
-            ):
-                if not re.search(pattern, block, re.MULTILINE):
-                    errors.append(f"{item_id}: OPEN item missing {name}")
+            field_aliases = (
+                ("Falsification method", ("Falsification method", "Falsification / decision method")),
+                ("Evidence required", ("Evidence required",)),
+                ("Scenario selection", ("Scenario selection",)),
+            )
+            for display_name, aliases in field_aliases:
+                if not any(_field(block, alias) for alias in aliases):
+                    errors.append(f"{item_id}: OPEN item missing {display_name}")
             scenario_start = block.find("**Scenario selection:**")
             scenario_text = block[scenario_start:] if scenario_start >= 0 else ""
             if "→" not in scenario_text or not re.search(r"[A-Z][A-Z0-9_]{2,}", scenario_text):
