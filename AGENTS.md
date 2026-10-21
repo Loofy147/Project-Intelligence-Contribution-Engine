@@ -46,6 +46,7 @@ Do not ask the user to repeat information already available in the repository or
 9. **Keep docs honest.** Update docs when commands, interfaces, schemas, trust boundaries, or supported behavior changes. Never report tests, CI, deployments, or external state as verified unless the result was actually observed.
 10. **Minimize scope.** Do not reformat or refactor unrelated code. Do not delete existing files or rewrite history to simplify a task.
 11. Planning is evidence-driven, not date-driven. Every OPEN assumption must have a named owner, falsification method, required evidence, and scenario outcomes in `docs/ASSUMPTIONS-REGISTER.md`. Never silently resolve a policy question for the maintainer. Update the roadmap and register together when a gate or assumption changes.
+12. Relationship claims require canonical relation evidence. For GitHub issue/PR links, accept only an explicit timeline cross-reference event or maintainer-confirmed mapping; a relation never proves resolution or acceptance.
 
 ## Definition of done
 
