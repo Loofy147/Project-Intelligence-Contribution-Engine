@@ -2,7 +2,7 @@
 
 A local-first tool for understanding software projects and converting verified gaps into reviewable contribution work.
 
-The Python CLI indexes readable project files, ranks keyword search results, inventories common technology markers, drafts evidence-backed review tasks, snapshots public GitHub issues and pull requests, and creates an issue-first work plan. It does not modify scanned source repositories, change GitHub records, or create funded bounties.
+The Python CLI indexes readable project files, ranks keyword search results, inventories common technology markers, imports explicitly configured work-item registries, snapshots public GitHub issues and pull requests, and creates an issue-first work plan. It does not modify scanned source repositories, change GitHub records, or create funded bounties.
 
 ## Capabilities
 
@@ -11,10 +11,12 @@ The Python CLI indexes readable project files, ranks keyword search results, inv
 - Search indexed files using explainable TF-IDF-style ranking.
 - Detect common language extensions, packaging manifests, test paths, and CI markers without executing repository code.
 - Produce Markdown/JSON inventory reports and separate observed signals from hypotheses.
-- Draft tasks from explicit TODO/FIXME/XXX/HACK source markers and review hypotheses.
-- Verify task evidence freshness and report missing acceptance criteria.
-- Fetch public GitHub issues and PR metadata via read-only GET requests.
-- Build a work plan that keeps canonical issues, proposed PRs, and engine-generated draft findings distinct.
+- Draft tasks from source TODO/FIXME/XXX/HACK markers.
+- Optionally read unchecked Markdown items only from manifest-declared `checklist_paths`; fenced examples and unconfigured documents are ignored.
+- Optionally project nonterminal work items from manifest-declared JSON registries, preserving canonical IDs, status, acceptance criteria, dependencies, record digests and source pointers.
+- Verify source-line, checklist and registry evidence freshness and report missing acceptance criteria.
+- Fetch public GitHub issue and PR metadata via read-only GET requests.
+- Build a work plan that keeps canonical issues, PR proposals, repository-registry items, and engine-generated draft findings distinct.
 
 ## Requirements
 
@@ -38,6 +40,33 @@ pie verify-tasks .
 ~~~
 
 Generated local index/task output lives in `.project-intelligence/`, which is ignored by Git. The index contains copied source text, so keep it local and review it before sharing.
+
+## Project manifests
+
+An optional `.project-intelligence.json` file registers project identity and can explicitly select planning sources. The engine does not infer that every Markdown checkbox or every JSON array is a task list. See [the manifest reference](docs/PROJECT-MANIFEST.md).
+
+Example for a repository with a canonical typed registry:
+
+~~~json
+{
+  "schema_version": 1,
+  "id": "context-swarm",
+  "name": "Context Swarm",
+  "repository_url": "https://github.com/Loofy147/Context-swarm",
+  "registry_work_item_sources": [
+    {
+      "path": "swarm/registry.json",
+      "collection": "work_items",
+      "id_field": "work_item_id",
+      "title_field": "title",
+      "status_field": "status",
+      "active_statuses": ["ready", "in_progress", "blocked", "review"]
+    }
+  ]
+}
+~~~
+
+Only records in the named collection whose status is explicitly allowlisted are projected. They remain anchored to the registry; no duplicate issue or external task is created.
 
 ## Build a plan from existing GitHub records
 
@@ -70,20 +99,17 @@ pie workplan \
 
 Replace `/path/to/local/contribquest-checkout` with a local checkout before running the task generator. GitHub commands use public API GET requests and can be affected by rate limits. No authentication is requested and no issue or PR is modified. The work plan reads explicit leading `[P0]`–`[P3]` prefixes from issue titles; it does not infer issue/PR relationships based on similar wording.
 
-## Project manifest
-
-An optional `.project-intelligence.json` file gives a project a stable ID and metadata. See [the manifest format](docs/PROJECT-MANIFEST.md).
-
 ## Privacy and authority boundaries
 
 - Source scanning does not modify the project being scanned.
 - Common secret filenames and key material are excluded, but exclusion rules cannot guarantee detection of all secrets.
 - Task excerpts apply basic credential-pattern redaction; this is not a secret scanner.
 - Inventory results are filename/extension heuristics, not a semantic code audit.
-- `observed` markers and `hypothesis` review candidates are different evidence classes. Both require review.
+- `observed` source markers/checklist items and `hypothesis` review candidates are distinct evidence classes. All require review.
+- Registry-backed items preserve an existing source record; they are not independently accepted by the engine.
 - GitHub issue records remain canonical work records; PRs are proposals, not proof of accepted work.
 - No task is automatically published, assigned, merged, or converted into a funded bounty.
-- The GitHub snapshot commands read titles, labels, states, timestamps, refs, and canonical URLs. They deliberately omit issue/PR bodies.
+- GitHub snapshot commands read titles, labels, states, timestamps, refs, and canonical URLs. They deliberately omit issue/PR bodies.
 - Verification is read-only; a fresh source digest does not approve a task or complete a project.
 
 ## Optional AI routing integration
@@ -100,7 +126,7 @@ pie --help
 
 See [the architecture](docs/ARCHITECTURE.md), [the roadmap](docs/ROADMAP.md), [the manifest specification](docs/PROJECT-MANIFEST.md), and [contributing](CONTRIBUTING.md).
 
-To evaluate public project snapshots, run the **Evaluate real projects** GitHub Actions workflow. It checks out targets without persisting target-repository write credentials and uploads per-project inventory, issue/PR snapshots, task drafts, and work-plan reports as 14-day artifacts.
+To evaluate public project snapshots, run the **Evaluate real projects** GitHub Actions workflow. It checks out targets without persisting target-repository write credentials and uploads per-project inventory, issue/PR snapshots, tasks, verification and work-plan reports as 14-day artifacts.
 
 ## License
 
