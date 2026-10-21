@@ -142,3 +142,32 @@ def test_write_snapshot_diff_supports_json_and_markdown(tmp_path: Path) -> None:
 
     assert json.loads(json_path.read_text(encoding="utf-8"))["schema_version"] == 1
     assert "# Snapshot comparison: example/repo" in md_path.read_text(encoding="utf-8")
+
+
+def test_cli_compare_snapshots_writes_reports(tmp_path: Path, capsys) -> None:
+    from project_intelligence.cli import main
+
+    previous_path = tmp_path / "before.json"
+    current_path = tmp_path / "after.json"
+    previous_path.write_text(json.dumps(_issues([{
+        "number": 4, "title": "Open item", "state": "open",
+        "url": "https://github.com/example/repo/issues/4", "labels": [], "updated_at": "old",
+    }])), encoding="utf-8")
+    current_path.write_text(json.dumps(_issues([{
+        "number": 4, "title": "Open item", "state": "closed",
+        "url": "https://github.com/example/repo/issues/4", "labels": [], "updated_at": "new",
+    }])), encoding="utf-8")
+
+    json_output = tmp_path / "out" / "diff.json"
+    markdown_output = tmp_path / "out" / "diff.md"
+    result = main([
+        "compare-snapshots",
+        "--previous-issues", str(previous_path),
+        "--current-issues", str(current_path),
+        "--json-output", str(json_output),
+        "--markdown-output", str(markdown_output),
+    ])
+
+    assert result == 0
+    assert json.loads(json_output.read_text(encoding="utf-8"))["summary"]["issue_records_changed"] == 1
+    assert "Read-only comparison" in capsys.readouterr().out
