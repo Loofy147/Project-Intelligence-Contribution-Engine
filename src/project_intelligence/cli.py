@@ -11,23 +11,21 @@ from project_intelligence.indexer import (
     build_index,
     load_index,
 )
+from project_intelligence.inventory import build_inventory, write_inventory
 from project_intelligence.search import search_index
+from project_intelligence.tasks import generate_draft_tasks, write_tasks
 
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="pie",
-        description="Index local project text and search it with ranked results.",
+        description="Inventory local projects, search evidence, and draft contribution tasks.",
     )
     subcommands = parser.add_subparsers(dest="command", required=True)
 
-    index_parser = subcommands.add_parser("index", help="build a local project index")
+    index_parser = subcommands.add_parser("index", help="build a local project search index")
     index_parser.add_argument("root", nargs="?", default=".", help="project directory")
-    index_parser.add_argument(
-        "--output",
-        type=Path,
-        help="index destination (default: ROOT/.project-intelligence/index.json)",
-    )
+    index_parser.add_argument("--output", type=Path, help="index destination")
     index_parser.add_argument(
         "--max-file-bytes",
         type=int,
@@ -44,7 +42,33 @@ def _parser() -> argparse.ArgumentParser:
         help="path to the JSON index",
     )
     search_parser.add_argument("--limit", type=int, default=10, help="maximum results")
+
+    inventory_parser = subcommands.add_parser(
+        "inventory", help="create a project inventory and review-signal report"
+    )
+    inventory_parser.add_argument("root", nargs="?", default=".", help="project directory")
+    inventory_parser.add_argument("--manifest", type=Path, help="manifest path relative to root or an absolute path")
+    inventory_parser.add_argument("--format", choices=("markdown", "json"), default="markdown")
+    inventory_parser.add_argument("--output", type=Path, help="report destination")
+
+    tasks_parser = subcommands.add_parser(
+        "tasks", help="draft contribution tasks from source markers and inventory hypotheses"
+    )
+    tasks_parser.add_argument("root", nargs="?", default=".", help="project directory")
+    tasks_parser.add_argument("--manifest", type=Path, help="manifest path relative to root or an absolute path")
+    tasks_parser.add_argument("--json-output", type=Path, help="JSON output path")
+    tasks_parser.add_argument("--markdown-output", type=Path, help="Markdown review report path")
+    tasks_parser.add_argument(
+        "--max-file-bytes",
+        type=int,
+        default=DEFAULT_MAX_FILE_BYTES,
+        help=f"skip larger files (default: {DEFAULT_MAX_FILE_BYTES})",
+    )
     return parser
+
+
+def _index_project(root: Path, max_file_bytes: int) -> dict:
+    return build_index(root, max_file_bytes=max_file_bytes)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -54,33 +78,61 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "index":
             root = Path(args.root).expanduser().resolve()
-            output = args.output
-            if output is None:
-                output = root / ".project-intelligence" / "index.json"
-            index = build_index(
-                root,
-                max_file_bytes=args.max_file_bytes,
-                output_path=output,
-            )
+            output = args.output or (root / ".project-intelligence" / "index.json")
+            index = build_index(root, max_file_bytes=args.max_file_bytes, output_path=output)
             print(
-                f"Indexed {index['files_indexed']} files; "
-                f"skipped {index['files_skipped']}. Index: "
-                f"{Path(output).expanduser().resolve()}"
+                f"Indexed {index['files_indexed']} files; skipped {index['files_skipped']}. "
+                f"Index: {Path(output).expanduser().resolve()}"
             )
-            print("Review the generated index before sharing it; it contains file text.")
+            print("The index contains copied file text; review it before sharing.")
             return 0
 
-        index = load_index(args.index)
-        results = search_index(index, args.query, limit=args.limit)
-        if not results:
-            print("No matching documents.")
+        if args.command == "search":
+            index = load_index(args.index)
+            results = search_index(index, args.query, limit=args.limit)
+            if not results:
+                print("No matching documents.")
+                return 0
+            for rank, result in enumerate(results, start=1):
+                print(f"{rank}. {result['path']}  (score: {result['score']:.4f})")
+                print(f"   {result['snippet']}")
             return 0
 
-        for rank, result in enumerate(results, start=1):
-            print(f"{rank}. {result['path']}  (score: {result['score']:.4f})")
-            print(f"   {result['snippet']}")
-        return 0
+        if args.command == "inventory":
+            root = Path(args.root).expanduser().resolve()
+            index = _index_project(root, DEFAULT_MAX_FILE_BYTES)
+            inventory = build_inventory(root, index, manifest_path=args.manifest)
+            default_name = "inventory.md" if args.format == "markdown" else "inventory.json"
+            output = args.output or (root / ".project-intelligence" / default_name)
+            written = write_inventory(inventory, output, format=args.format)
+            print(
+                f"Inventory written to {written}. "
+                f"Files indexed: {inventory['summary']['files_indexed']}; "
+                f"review hypotheses: {len(inventory['review_signals'])}."
+            )
+            return 0
 
+        if args.command == "tasks":
+            root = Path(args.root).expanduser().resolve()
+            index = _index_project(root, args.max_file_bytes)
+            inventory = build_inventory(root, index, manifest_path=args.manifest)
+            task_set = generate_draft_tasks(index, inventory)
+            json_path = args.json_output or (root / ".project-intelligence" / "tasks.json")
+            markdown_path = args.markdown_output or (root / ".project-intelligence" / "tasks.md")
+            write_tasks(task_set, json_path, format="json")
+            write_tasks(task_set, markdown_path, format="markdown")
+            print(
+                f"Wrote {task_set['summary']['total_drafts']} draft tasks "
+                f"({task_set['summary']['observed_marker_tasks']} observed markers; "
+                f"{task_set['summary']['hypothesis_review_tasks']} hypotheses)."
+            )
+            print(f"JSON: {json_path.expanduser().resolve()}")
+            print(f"Review report: {markdown_path.expanduser().resolve()}")
+            print("Nothing was published or created as a bounty.")
+            return 0
+
+        parser.error("Unknown command")
+        return 2
     except (OSError, ValueError) as exc:
         print(f"pie: error: {exc}", file=sys.stderr)
         return 2
