@@ -25,6 +25,7 @@ This file is the quick navigation map. Read the linked source docs for full cont
 | `github_issues.py` | Read-only public GitHub issue snapshot | `tests/test_github_issues.py` |
 | `github_pulls.py` | Read-only public GitHub pull-request snapshot | `tests/test_github_pulls.py` |
 | `workplan.py` | Read-only projection of issues, PRs, registry items and engine-generated drafts | `tests/test_workplan.py` |
+| `snapshot_diff.py` | Compare previous/current issue and optional PR snapshots; report metadata changes without inference or writes | `tests/test_snapshot_diff.py` |
 | `ai_review.py` | Optional bounded metadata-only AI review, response validation, advisory report output | `tests/test_ai_review.py` |
 | `__init__.py` | Package identity/version exports | Inspect import and packaging tests if changing it |
 
@@ -35,13 +36,14 @@ Test mappings are a starting point, not a guarantee that a behavior appears in o
 | Path | Authority |
 |---|---|
 | `docs/ARCHITECTURE.md` | Current component responsibilities, data flow, trust boundaries, extension policy |
-| `docs/ROADMAP.md` | Milestones and uncompleted work; do not mark complete without evidence |
+| `docs/ROADMAP.md` | Dependency graph of gates and scenario branches; no dates or linear milestone assumptions |
 | `docs/PROJECT-MANIFEST.md` | `.project-intelligence.json` schema, checklist allowlist, typed registry mapping |
 | `docs/AI-REVIEW-GATEWAY.md` | What data reaches the model gateway, limits, API contract, advisory-only semantics |
 | `docs/REAL-PROJECT-EVALUATION.md` | Dated evaluation snapshots and work-source interpretation; historical run results may become stale |
 | `docs/OSS-REUSE-RESEARCH.md` | Third-party project/license review and adoption decisions |
 | `docs/oss-reuse-catalog.json` | Structured reuse catalog corresponding to the reuse research |
-| `docs/EXECUTION-PLAYBOOK.md` | Deterministic workflow from task selection to validation and handoff |
+| `docs/EXECUTION-PLAYBOOK.md` | Deterministic workflow from gate selection to validation and handoff |
+| `docs/ASSUMPTIONS-REGISTER.md` | Canonical OPEN assumptions, owner, falsification method, required evidence, and scenario outcomes |
 | `docs/WORK-ITEM-TEMPLATE.md` | Standard structure for newly proposed work items |
 | `docs/SESSION-HANDOFF-TEMPLATE.md` | Exact repository-state handoff for cross-session continuity |
 
