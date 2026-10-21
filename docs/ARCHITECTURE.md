@@ -1,47 +1,54 @@
 # Architecture
 
-## Current boundary
+## Current components
 
-The first release is a local Python package with five responsibilities:
-
-- **Indexer**: discovers eligible text files, applies exclusions and size limits, and emits a versioned JSON document index.
-- **Search**: tokenizes text, computes a transparent TF-IDF-style score, and returns source paths with excerpts.
-- **Inventory**: detects language extensions and conventional project/tooling manifests without executing project code. Optional project metadata lives in `.project-intelligence.json`.
-- **Task drafts**: turns explicit TODO/FIXME/XXX/HACK source markers into observed-fact drafts and turns inventory signals into separately labeled hypotheses.
-- **CLI**: exposes index, search, inventory, and task-draft operations with local file outputs.
+- **Indexer**: discovers eligible text files, applies exclusions and size limits, and emits a versioned local JSON index.
+- **Search**: tokenizes content, computes an explainable TF-IDF-style score, and returns paths and snippets.
+- **Inventory**: detects language extensions and conventional project/tooling manifests without executing project code. Optional metadata lives in `.project-intelligence.json`.
+- **Task drafts**: converts explicit TODO/FIXME/XXX/HACK source markers to observed-fact drafts and inventory review signals to hypotheses.
+- **Task verification**: compares stored source digests and line markers against a fresh scan, then reports stale/unverified evidence and missing acceptance criteria.
+- **GitHub issue/PR readers**: fetch public list endpoints via HTTP GET and capture titles, labels, states, timestamps, branch references, and canonical source URLs. Bodies are not mirrored.
+- **Work-plan projection**: sorts existing issues by an explicit leading `[P0]`–`[P3]` title prefix, and keeps issues, proposed PRs, and local draft findings separate.
+- **CLI**: exposes index, search, inventory, GitHub snapshot, work-plan, task-draft, and evidence-verification operations.
 
 ## Data flow
 
-1. Read a chosen project directory.
+1. Scan the explicitly selected local project.
 2. Skip common generated directories, symlinks, oversized files, binary files, and likely credential-bearing paths.
-3. Produce an in-memory index of readable text and SHA-256 source digests.
-4. Derive a portable inventory: languages, recognized technology markers, and convention-based review signals.
-5. Generate deterministic draft IDs using project identity and marker location/reason, then verify their source digest and line against future scans.
-6. Write JSON/Markdown reports under `.project-intelligence/` by default.
+3. Produce root-relative file metadata, content digests, and a local text index.
+4. Derive inventory signals using file names and conventional directory patterns.
+5. Generate stable draft identifiers from project identity and marker location/reason.
+6. Verify saved task evidence against a fresh project scan.
+7. When explicitly requested, fetch public GitHub issue/PR metadata and preserve original external identifiers and URLs.
+8. Build a read-only work-plan view without creating or changing any external records.
 
 ## Task semantics and authority
 
-- `observed` means a source marker was present at a specific file and line in the indexed snapshot; it does not prove the work is still needed.
-- `hypothesis` means an inventory heuristic did not find a conventional marker; it does not prove a capability is absent.
-- Each draft includes evidence, source digest where available, review steps, and empty acceptance criteria until a human defines them.
-- `pie verify-tasks` compares stored source evidence and inventory hypotheses against a fresh scan without mutating the task file. Stale source digests or disappeared hypotheses are flagged.
-- Missing acceptance criteria are reported as blockers; freshness alone never implies approval.
-- Generated tasks are drafts. There is no automatic issue publishing, assignment, bounty creation, XP award, or source-code editing.
+- `observed` means a marker was present at a specific file and line in an indexed snapshot; it does not prove the work remains actionable.
+- `hypothesis` means an inventory heuristic did not find a conventional marker; it does not prove the capability is absent.
+- Drafts include evidence, source digests where available, review steps, and empty acceptance criteria until a human defines them.
+- `pie verify-tasks` flags stale source digests or inventory hypotheses that are no longer detected.
+- Missing acceptance criteria are blockers; freshness alone never implies approval.
+- Existing GitHub issues remain canonical work records. Pull requests remain proposed changes. The engine does not infer that a PR resolves an issue merely because their titles look similar.
+- Generated drafts cannot publish issues, assign work, create bounties, award XP, merge PRs, or edit scanned source code.
 
 ## Trust and safety boundaries
 
-- Scanning does not modify source files.
-- Symlinks and common secret-bearing paths/file types are skipped; the rules are defense in depth, not a guarantee.
-- The JSON index contains copied project source text. Keep it local, ignore it in Git, and review before sharing.
-- Task excerpt output applies basic credential-pattern redaction; do not treat that as a complete secret scanner.
-- Markdown and JSON reports avoid printing the absolute machine path by default.
-- Inventory results are filename/extension heuristics, not a semantic audit.
-- Indexing and search remain local-only. The explicit `pie github-issues` subcommand makes read-only network requests to the public GitHub API; it does not authenticate, write, or publish.
+- Source scanning is read-only.
+- Common secret-bearing paths and types are excluded, but the rules are defense in depth, not a guarantee.
+- A local JSON index contains copied project source text. Keep it local, ignore it in Git, and review before sharing.
+- Task excerpt output applies basic credential-pattern redaction; do not treat it as complete secret scanning.
+- Report output avoids absolute local paths by default.
+- Inventory is a filename/extension heuristic, not a semantic audit.
+- Indexing and search remain local-only. The explicit `pie github-issues` and `pie github-pulls` subcommands make unauthenticated read-only requests to the public GitHub API. They do not write or publish.
+- Public API limits or unavailable endpoints are reported as errors; no network data is silently fabricated.
 
 ## Explicit non-goals
 
-There is no server, database, authentication layer, credential vault, autonomous code modification, GitHub write integration, vector database, or LLM dependency.
+There is no backend, database, authentication layer, credential vault, autonomous code modification, GitHub write integration, vector database, or LLM dependency in the core CLI.
 
-## Planned extension seam
+The optional OmniRoute Workbench integration is a separate local model-routing component and does not grant the core CLI repository write permissions.
 
-Future integrations can map reviewed tasks to existing issue/PR records. Any integration should begin read-only, preserve external identifiers and evidence lineage, and require explicit authorization before external writes. Do not duplicate task records where an existing issue already serves as the canonical work item.
+## Extension policy
+
+Start external integrations read-only. Preserve external IDs, source URLs, timestamps, and evidence lineage. Require explicit authorization and separate approval before any future external writes. Do not duplicate a canonical issue or create a second task record where an existing issue already serves as the authoritative work item.

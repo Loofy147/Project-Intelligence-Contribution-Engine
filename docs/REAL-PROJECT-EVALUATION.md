@@ -46,3 +46,58 @@ This is the application repository and had the clearest existing backlog. Start 
 - No issue was created or closed; no task was turned into a bounty.
 - Inventory hypotheses require human review.
 - A project must never be reported complete merely because no conventional TODO comments were detected.
+
+
+## Follow-up evaluation — issue/PR-aware work plan
+
+**Workflow:** [read-only real-project evaluation run](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39615742718)  
+**Engine revision:** `35f920701863203d4b2c7b043f04a905c208ee8b)  
+**Validation:** [Python test workflow](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39615742620) and [OmniRoute integration tests](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39615742662) also succeeded.
+
+The workflow checked the public repositories at their current `main` heads using target checkouts with `persist-credentials: false`. It did not alter target repositories or GitHub records.
+
+| Project | Files indexed | Open issues | Open PRs | Declared issue priority |
+|---|---:|---:|---:|---|
+| [Contribution Network Bounties](https://github.com/Loofy147/contribution-network) | 18 | 0 | 0 | None found |
+| [Context Swarm](https://github.com/Loofy147/Context-swarm) | 68 | 0 | 0 | None found |
+| [ContribQuest WorkLink](https://github.com/Loofy147/Contribution-bounties-centre-) | 42 | 9 | 9 | 5 P0; 4 P1 |
+
+The marker/hypothesis generator produced zero drafts for all three scans, which demonstrates that source-comment detection is insufficient as a backlog-discovery mechanism. The issue/PR snapshots now expose canonical project work without duplicating it.
+
+### ContribQuest canonical issues
+
+Priority is parsed **only** from an explicit leading `[P0]`–`[P3]` prefix in the current issue title. It is source metadata, not an independent risk score.
+
+**P0**
+- [#1 — Reproducible development/build path](https://github.com/Loofy147/Contribution-bounties-centre-/issues/1): establish whether the supported target is AppDeploy-only or a reproducible local path; the repository documents platform-injected dependencies and clean-checkout reproducibility as outstanding.
+- [#2 — Two-account end-to-end acceptance workflow](https://github.com/Loofy147/Contribution-bounties-centre-/issues/2): run real owner/contributor flows against an identified deployed version, including invalid direct-API transitions.
+- [#3 — Exactly-once XP awards and safe review transitions](https://github.com/Loofy147/Contribution-bounties-centre-/issues/3): prove concurrent/retried acceptance cannot duplicate XP or corrupt state.
+- [#5 — Least-privilege GitHub App connection](https://github.com/Loofy147/Contribution-bounties-centre-/issues/5): selected-repository access, state/replay protection, credential isolation and revocation.
+- [#6 — Project-scoped data access and membership boundaries](https://github.com/Loofy147/Contribution-bounties-centre-/issues/6): finish endpoint-by-endpoint scope checks and negative cross-project isolation tests before broadening multi-project access.
+
+**P1**
+- [#4 — Project license and contribution terms](https://github.com/Loofy147/Contribution-bounties-centre-/issues/4): owner decision after reviewing first-party source provenance and third-party dependency rights.
+- [#7 — Audit events and idempotent XP ledger](https://github.com/Loofy147/Contribution-bounties-centre-/issues/7): durable event/award lineage and safe retry/failure handling.
+- [#8 — Authorized read-only Network MCP tools](https://github.com/Loofy147/Contribution-bounties-centre-/issues/8): depends on project-scope authorization and shared domain services; do not expose unrestricted data access.
+- [#21 — Public Open Graph description](https://github.com/Loofy147/Contribution-bounties-centre-/issues/21): trace the deployed metadata source and verify the public page after approved copy is deployed.
+
+### Open PR proposals are separate from issues
+
+The snapshot contained nine open PRs, including:
+- [PR #17 — AGPL-3.0-or-later proposal](https://github.com/Loofy147/Contribution-bounties-centre-/pull/17), **draft**. Its own conditions require the owner to verify first-party provenance and license rights before merge. Do not merge it automatically.
+- [PR #20 — Independent review workflow](https://github.com/Loofy147/Contribution-bounties-centre-/pull/20), open, not merged. It proposes shared contribution/review functionality, but its existence does not establish that issues #2, #3, #6, or #7 are satisfied.
+- [PRs #9–13 and #25–26](https://github.com/Loofy147/Contribution-bounties-centre-/pulls), dependency upgrades. Major-version changes should be tested for compatibility and not merged merely because Dependabot opened them.
+
+No issue-to-PR relationship is inferred from similar titles. Verify links, changed files and checks before deciding overlap or closure.
+
+### Recommended execution order
+
+1. **#1 build/runtime contract:** establish the actual supported runtime and prove a clean-checkout install/build/test path.
+2. **#5 and #6 access boundaries:** complete selected-repository GitHub authorization and project/resource isolation.
+3. **#3 and #7 state integrity:** prove exactly-once XP and durable audit/ledger semantics with retry, concurrency and fault tests.
+4. **#2 live end-to-end workflow:** verify separate owner and contributor identities plus direct-API rejection cases against a recorded deployment/source pairing.
+5. **#4 licensing:** make the owner decision after rights/provenance review; treat PR #17 as a proposal, not an approval.
+6. **#8 MCP read-only surface:** expose bounded project-scoped tools only after shared authorization controls pass their tests.
+7. **#21 public metadata:** identify the real deployed metadata source, apply approved copy, and verify the deployed preview.
+
+This is a proposed order derived from current issue descriptions, repository docs, and visible PR state—not a claim that every issue is wholly unimplemented. Existing GitHub issues remain the canonical work records.
