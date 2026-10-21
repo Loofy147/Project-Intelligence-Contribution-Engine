@@ -76,7 +76,7 @@ This is a proposed order derived from current issue descriptions, repository doc
 
 ## Continuation recheck — 2026-10-21
 
-**Engine `main`:** `488245ad0cb74463bb0dc670aac43db45a5e11e5`. The current `tests`, `evaluate-real-projects`, and `omniroute-workbench` workflows succeeded on this commit:
+**Previously tested engine revision (before this report refresh):** `488245ad0cb74463bb0dc670aac43db45a5e11e5`. The current `tests`, `evaluate-real-projects`, and `omniroute-workbench` workflows succeeded on this commit:
 - [Engine tests](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39621316820)
 - [Real-project evaluation](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39621316825)
 - [OmniRoute Workbench tests](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39621316851)
