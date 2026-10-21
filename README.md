@@ -6,7 +6,8 @@ The Python CLI indexes readable project files, ranks keyword search results, inv
 
 ## Start here (including AI coding agents)
 
-- **Professional operating standard:** [Operating charter](docs/OPERATING-CHARTER.md)
+- **Canonical portfolio operating standard:** [Autonomous Project Intelligence & Engineering Standard in Notion](https://app.notion.com/p/4004508c33af817fb47fef96a8a69d43)
+- **PIE-specific operating rules:** [Local adapter](docs/OPERATING-CHARTER.md)
 - **Related systems and project boundaries:** [Portfolio context](docs/PORTFOLIO-CONTEXT.md)
 - **Existing goals, decisions, accounts/integrations and project handoffs:** use the linked canonical records in the [Integrated Operations OS in Notion](https://app.notion.com/p/3f84508c33af815a9a5dd587d3a46f04); retrieve existing context before asking for it again.
 - **Mandatory agent instructions:** [`AGENTS.md`](AGENTS.md)
