@@ -6,6 +6,13 @@ Use this template when a genuinely new work item must be proposed. If an existin
 
 Use an action plus the behavior/outcome, for example: `Measure task-draft false positives against a labelled benchmark`.
 
+## Intended outcome and broader impact
+
+- **User/business outcome:**
+- **Who benefits and how success will be observed:**
+- **Affected systems, data, APIs/MCPs, tools or datasets:**
+- **Professional concerns to assess:** product/business, architecture, security/privacy, data quality, UX/accessibility, testing, operations, licensing, documentation, contribution/agent guidance (include those relevant to this work):
+
 ## Problem and evidence
 
 - **Observed behavior/problem:**

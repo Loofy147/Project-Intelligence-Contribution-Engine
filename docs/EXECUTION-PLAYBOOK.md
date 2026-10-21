@@ -1,6 +1,10 @@
 # Task Execution Playbook
 
-This is the canonical procedure for turning a request or tracked work item into a tested repository change. Follow it in order. The dependency-gated roadmap and assumptions register are the planning source of truth; do not replace them with dates or a second plan.
+This is the canonical procedure for turning a request or tracked work item into a tested repository change. Follow it in order. The [Professional Operating Charter](OPERATING-CHARTER.md) defines the required professional coverage; this playbook turns it into the repeatable execution loop. The dependency-gated roadmap and assumptions register are the planning source of truth; do not replace them with dates or a second plan.
+
+## 0. Interpret the outcome and perform professional discovery
+
+Do not interpret a short request as a short checklist of responsibilities. Use the user's stated outcome and existing project context to determine the work necessary to deliver it. When more than one portfolio project is involved, consult [Portfolio Context](PORTFOLIO-CONTEXT.md), then verify each project's live canonical documents and current state; this index does not override their records. Before editing, inspect the actual repo/runtime, canonical records, current CI, and relevant tools/integrations. Identify missing product, business, architecture, data, security, UX, testing, operational, licensing, documentation, and contribution/agent-guidance concerns where material. Research authoritative standards, current vendor/API docs, datasets and maintained open-source alternatives when they could alter the decision. Select only capabilities that improve the outcome; do not add providers or complexity for their own sake. Record unknowns as assumptions or blockers, not facts. Ask only when a consequential decision has no defensible reversible default.
 
 ## 1. Choose the task source
 

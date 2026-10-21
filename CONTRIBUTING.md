@@ -2,7 +2,7 @@
 
 ## Start here
 
-Before changing code, follow the repository's mandatory [agent instructions](AGENTS.md) and [task execution playbook](docs/EXECUTION-PLAYBOOK.md). Use the [repository map](docs/REPOSITORY-MAP.md) to find the implementation and tests. Choose work from the dependency-gated [roadmap](docs/ROADMAP.md); resolve relevant open assumptions using the [assumptions register](docs/ASSUMPTIONS-REGISTER.md). These instructions apply to human contributors and AI coding agents.
+Before changing code, apply the [professional operating charter](docs/OPERATING-CHARTER.md), then follow the repository's mandatory [agent instructions](AGENTS.md) and [task execution playbook](docs/EXECUTION-PLAYBOOK.md). Use the [repository map](docs/REPOSITORY-MAP.md) to find the implementation and tests. Choose work from the dependency-gated [roadmap](docs/ROADMAP.md); resolve relevant open assumptions using the [assumptions register](docs/ASSUMPTIONS-REGISTER.md). These instructions apply to human contributors and AI coding agents.
 
 ## Ground rules
 
@@ -11,6 +11,8 @@ Before changing code, follow the repository's mandatory [agent instructions](AGE
 - Never commit generated search indexes or credentials.
 - Prefer small functions, clear error messages, and tests for observable behavior.
 - Avoid adding a service, database, model provider, or background worker without a demonstrated requirement.
+- Research suitable existing standards, APIs, MCPs, datasets, tools, and open-source implementations when they may materially help; assess rights, costs, security, maintenance and fit before adoption.
+- Do not make users enumerate routine professional concerns. Identify necessary architecture, testing, security, UX, operational, business, documentation, and contribution/agent-guidance work from the outcome.
 - Preserve canonical issue and registry records; do not create duplicate backlogs.
 - Keep scanned repositories and GitHub records read-only unless a separately authorized feature with the required controls is implemented.
 

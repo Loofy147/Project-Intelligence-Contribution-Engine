@@ -6,12 +6,14 @@ This file is the mandatory entrypoint for any AI assistant, coding agent, or per
 
 Project Intelligence & Contribution Engine (PIE) is a local-first Python CLI that turns inspected project evidence into reviewable contribution work. The core engine is deliberately dependency-light and read-only toward scanned projects and external work systems.
 
-**When asked to perform a task, perform the task in the repository. Do not stop after producing a plan when implementation is possible and safe.** Keep the change narrow, test it, and report concrete evidence.
+**When given an outcome, infer the professional work required to deliver it. Do not require the user to enumerate routine responsibilities such as research, architecture, testing, security, business reasoning, integrations, documentation, contributor guidance, and handoff.** Perform the task in the repository when safe and possible; keep scope proportionate and prove the result.
+
+The [Professional Operating Charter](docs/OPERATING-CHARTER.md) is the baseline for every task. It defines the work loop, research expectations, engineering/business responsibilities, data/tool governance, decision handling, authority boundaries, and definition of done.
 
 ## Mandatory startup sequence
 
 1. Read this file and [README.md](README.md).
-2. Read [docs/EXECUTION-PLAYBOOK.md](docs/EXECUTION-PLAYBOOK.md), [docs/REPOSITORY-MAP.md](docs/REPOSITORY-MAP.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ASSUMPTIONS-REGISTER.md](docs/ASSUMPTIONS-REGISTER.md).
+2. Read [docs/OPERATING-CHARTER.md](docs/OPERATING-CHARTER.md), [docs/EXECUTION-PLAYBOOK.md](docs/EXECUTION-PLAYBOOK.md), [docs/REPOSITORY-MAP.md](docs/REPOSITORY-MAP.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ASSUMPTIONS-REGISTER.md](docs/ASSUMPTIONS-REGISTER.md). Read [docs/PORTFOLIO-CONTEXT.md](docs/PORTFOLIO-CONTEXT.md) whenever a task crosses project or system boundaries.
 3. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) plus the relevant feature document before changing behavior.
 4. Inspect the actual working state: current branch, HEAD, uncommitted changes, target files, tests, and current CI where accessible. Never assume a previous conversation's state is current.
 5. Run the baseline checks when a working checkout and execution environment are available. Record failures before changing code so existing failures are not misreported as regressions.
@@ -23,8 +25,10 @@ Do not ask the user to repeat information already available in the repository or
 
 - `src/project_intelligence/`: core Python package and CLI.
 - `tests/`: behavior and regression tests.
+- `docs/OPERATING-CHARTER.md`: default professional operating responsibilities, research, evidence, authority, and definition of done.
+- `docs/PORTFOLIO-CONTEXT.md`: related project roles, current high-level boundaries, canonical source links, and rules for cross-project work.
 - `docs/ARCHITECTURE.md`: architecture, data flow, trust boundaries, and extension policy.
-- `docs/ROADMAP.md`: milestone state and open work; preserve its evidence-based completion rules.
+- `docs/ROADMAP.md`: dependency-gated scenario graph; preserve its evidence-based completion rules and never substitute dates for dependencies.
 - `docs/PROJECT-MANIFEST.md`: project manifest and explicit planning-source allowlists.
 - `docs/AI-REVIEW-GATEWAY.md`: optional model-review data contract and safety limits.
 - `docs/REAL-PROJECT-EVALUATION.md`: dated evaluation evidence; check current workflow runs before treating it as current.
@@ -47,6 +51,7 @@ Do not ask the user to repeat information already available in the repository or
 10. **Minimize scope.** Do not reformat or refactor unrelated code. Do not delete existing files or rewrite history to simplify a task.
 11. Planning is evidence-driven, not date-driven. Every OPEN assumption must have a named owner, falsification method, required evidence, and scenario outcomes in `docs/ASSUMPTIONS-REGISTER.md`. Never silently resolve a policy question for the maintainer. Update the roadmap and register together when a gate or assumption changes.
 12. Relationship claims require canonical relation evidence. For GitHub issue/PR links, accept only an explicit timeline cross-reference event or maintainer-confirmed mapping; a relation never proves resolution or acceptance.
+13. Apply `docs/OPERATING-CHARTER.md` proactively. Discover relevant tools, APIs, MCPs, datasets, services, standards, and open-source options when they may materially improve an outcome; assess security, rights, cost, reliability, and fit, and never add or invoke them merely for decoration. Do not wait for the user to prompt each professional responsibility.
 
 ## Definition of done
 

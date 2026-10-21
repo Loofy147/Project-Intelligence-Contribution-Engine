@@ -32,16 +32,17 @@ A gate is a testable capability or decision boundary. Each gate declares an owne
 
 ```text
 GATE-00 Current baseline (PASSED)
-  ├── GATE-01 Heuristic task-candidate quality (BLOCKED by the policy target in A-001; evaluates A-002)
-  │     ├── GATE-04 Human approval and closure protocol
-  │     ├── GATE-05 Structured readiness parsing (also depends on GATE-02)
+  ├── GATE-01 Heuristic task-candidate quality (BLOCKED by A-001 decision; evaluates A-002)
+  │     ├── GATE-04 Human approval and closure protocol (also depends on GATE-02)
+  │     ├── GATE-05 Structured readiness parsing (also depends on GATE-02; evaluates A-008)
   │     └── GATE-06 AI review value experiment (evaluates A-004)
   ├── GATE-02 Source snapshot comparison and freshness (PASSED)
   │     └── GATE-03 Explicit issue/PR relationships (PASSED; evaluates A-005)
-  └── GATE-12 Planning-contract validation in CI (PASSED)
-  ├── GATE-11 Keyword-search quality (BLOCKED by the policy target in A-003)
+  ├── GATE-11 Keyword-search quality (BLOCKED by A-003 decision)
   ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
-  └── GATE-08 Persistence decision (DEFERRED until a concrete requirement is demonstrated; monitors A-007)
+  ├── GATE-08 Persistence decision (DEFERRED until a concrete requirement; monitors A-007)
+  └── GATE-12 Planning-contract validation in CI (PASSED)
+        └── GATE-13 Professional operating charter adoption (PASSED)
 
 GATE-03 + GATE-04 + applicable access decision
   └── GATE-09 ContribQuest read-only workflow integration
@@ -206,6 +207,17 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 - **Exit criteria:** Tests parse the committed Markdown files; verify unique IDs, valid states, required fields for every OPEN item, recorded evidence for resolved assumptions, declared owners/dependencies for all gates, referential integrity for gate/assumption IDs, and that every READY gate has all mandatory dependencies PASSED; malformed fixtures are rejected; the core test and CLI-help workflows pass.
 - **Evidence:** Core tests, including the planning-contract tests, passed on Python 3.11 and 3.12 in [workflow run 39661636162](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39661636162) for commit [`8ec9644d`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/commit/8ec9644d6cf8f85ff125e7b4db70e29c7832dcc7). The OmniRoute Workbench checks also passed on the same commit [run 39661636207](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39661636207). The follow-up roadmap edit only records this result and the exact acceptance wording.
 - **Boundary:** Structural checks do not establish that cited evidence is true or that an owner decision is wise. Human review of substance remains necessary.
+
+### GATE-13 — Adopt the professional operating charter across work entry points
+
+- **State:** PASSED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-00 and GATE-12
+- **Purpose:** Make professional completeness the default across task interpretation, execution, research, tool use, documentation, contribution guidance, and agent behavior. The user should provide direction and constraints, not enumerate routine responsibilities.
+- **Exit criteria:** The charter is linked from mandatory agent instructions, README, execution playbook, repository map and contribution guidance; the work-item and PR templates prompt relevant outcome/coverage checks; authoritative standards are linked with version/freshness caveats; automated planning-contract validation and the core test/CLI workflows pass.
+- **Evidence:** Core test suite passed at commit [`f8909079`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/commit/f8909079108023f210d3ab09a9200707856eaf0d) in [workflow run 39664066703](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39664066703); OmniRoute Workbench checks passed on the same commit in [run 39664066704](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39664066704). The final validation included the charter, portfolio map, agent/playbook entry points, contributor guidance, templates, and handoff updates.
+- **Authority boundary:** The charter does not claim background execution, automatic access to every integration, or blanket permission for external side effects. Use only connected capabilities and authorized actions; configure scheduled work explicitly.
+- **Next:** Apply the charter to future gates and project work, improving it when evidence shows a missing control rather than creating a new duplicate checklist.
 
 ## Capability baseline already established
 
