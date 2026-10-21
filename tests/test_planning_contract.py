@@ -30,10 +30,14 @@ def _section_blocks(text: str, heading_pattern: str, next_heading_pattern: str) 
 
 
 def _field(block: str, name: str) -> str | None:
-    pattern = rf"^- \*\*{re.escape(name)}:\*\*\s*(.+?)\s*$"
+    # Never use \\s across the value boundary: it includes newlines and can
+    # accidentally treat the next Markdown bullet as the value of an empty field.
+    pattern = rf"^- \\*\\*{re.escape(name)}:\\*\\*[ \\t]*([^\\n]*)$"
     match = re.search(pattern, block, re.MULTILINE)
-    return match.group(1).strip() if match else None
-
+    if not match:
+        return None
+    value = match.group(1).strip()
+    return value or None
 
 def validate_assumptions_register(text: str) -> list[str]:
     errors: list[str] = []
