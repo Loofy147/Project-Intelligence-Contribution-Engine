@@ -34,6 +34,8 @@ These responsibilities are inherent to the work. Apply the ones relevant to the 
 
 Establish the target user/customer, job to be done, pain point, value proposition, competing alternatives, adoption path, feedback mechanism, and definition of success. Where there is a business objective, assess evidence of demand, pricing/revenue path, acquisition/distribution, retention, delivery/support costs, unit economics, available capital, and major commercial risks. Distinguish validated facts from proposed business hypotheses. Do not confuse software shipped with customer value or revenue achieved.
 
+At company or portfolio level, examine the connected operating functions rather than treating software as the entire business: strategy and portfolio choices; product and customer discovery; growth, sales and distribution; finance and unit economics; engineering and delivery; data/platform/security; service operations and customer success; and governance, people and knowledge. This is a capability map, not a mandatory org chart. Assign owners and decision rights to the scale and risk of the business. Each project should connect its outputs to a user/business outcome and a measurable signal; project priority should reflect portfolio value, dependencies, risk and evidence rather than whichever backlog is loudest.
+
 ### Product and systems architecture
 
 Map domain concepts, boundaries, ownership, components, data flows, APIs/contracts, external dependencies, failure modes, security boundaries, and migration paths. Prefer modularity and clear contracts over premature microservices. Preserve reversibility until evidence justifies commitment. Record important decisions and rejected alternatives where future work depends on them.
