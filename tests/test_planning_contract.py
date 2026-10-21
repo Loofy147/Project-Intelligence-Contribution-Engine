@@ -30,14 +30,13 @@ def _section_blocks(text: str, heading_pattern: str, next_heading_pattern: str) 
 
 
 def _field(block: str, name: str) -> str | None:
-    # Never use \\s across the value boundary: it includes newlines and can
-    # accidentally treat the next Markdown bullet as the value of an empty field.
-    pattern = rf"^- \\*\\*{re.escape(name)}:\\*\\*[ \\t]*([^\\n]*)$"
-    match = re.search(pattern, block, re.MULTILINE)
-    if not match:
-        return None
-    value = match.group(1).strip()
-    return value or None
+    # Parse one Markdown bullet at a time so an empty value cannot borrow the next line.
+    prefix = f"- **{name}:**"
+    for line in block.splitlines():
+        if line.startswith(prefix):
+            value = line[len(prefix):].strip()
+            return value or None
+    return None
 
 def validate_assumptions_register(text: str) -> list[str]:
     errors: list[str] = []
