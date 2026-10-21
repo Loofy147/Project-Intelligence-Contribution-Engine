@@ -170,6 +170,8 @@ def _normalize_cross_reference(
         "source": source,
         "target": target_out,
         "evidence": evidence,
+        "verification_state": "explicit_source_event_observed",
+        "completion_state": "unknown_not_inferred",
         "interpretation_limit": (
             "GitHub recorded a cross-reference event. This does not prove that the source fixes, "
             "closes, resolves, or fully satisfies the target."
@@ -320,9 +322,19 @@ def render_relationships_markdown(report: dict[str, Any]) -> str:
         "",
         "> A recorded cross-reference proves only that GitHub observed a reference event. It does not prove that a PR fixes, closes, or fully satisfies an issue. This report is limited to the selected target timelines.",
         "",
-        "## Explicit in-repository relationships",
+        "## Input snapshot coverage",
         "",
     ]
+    for source_snapshot in report.get("input_snapshots", []):
+        lines.append(
+            f"- Repository: {source_snapshot.get('repository')}; query state: "
+            f"{source_snapshot.get('query_state') or 'unknown'}; fetched at: "
+            f"{source_snapshot.get('fetched_at') or 'unknown'}; records: "
+            f"{source_snapshot.get('record_count', 'unknown')}"
+        )
+    if not report.get("input_snapshots"):
+        lines.append("The caller did not attach snapshot provenance.")
+    lines.extend(["", "## Explicit in-repository relationships", ""])
     if not report["relationships"]:
         lines.extend(["No explicit in-repository cross-reference events were found in the selected timelines.", ""])
     for relation in report["relationships"]:
