@@ -4,7 +4,7 @@ This is the canonical register for unresolved assumptions and questions that aff
 
 ## Operating contract
 
-- Every item with status `OPEN` **must** have a named accountable owner, a falsification method, the evidence that would settle it, and explicit outcomes that select a scenario.
+- Every item with status `OPEN` **must** have a named accountable owner, a falsification method, the evidence that would settle it, and explicit outcomes that select a scenario. An empirical OPEN assumption does **not** block the gate whose purpose is to test it; the test outcome selects the scenario. Only a required owner decision or missing test input blocks execution.
 - The accountable owner is the repository maintainer, **Loofy147**, unless a specific person is recorded here. Agents may gather evidence and run tests; they must not silently make an unresolved product-policy decision on the owner's behalf.
 - Do not use dates or guessed time estimates as planning state. Use evidence, dependencies, owner decisions, and gate state.
 - A claim is not resolved because a model agrees with it, the code exists, or one CI run is green. Record the evidence link/path and the observed result.
