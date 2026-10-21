@@ -1,6 +1,6 @@
 # Task Execution Playbook
 
-This is the canonical procedure for turning a request or tracked work item into a tested repository change. Follow it in order. The [Professional Operating Charter](OPERATING-CHARTER.md) defines the required professional coverage; this playbook turns it into the repeatable execution loop. The dependency-gated roadmap and assumptions register are the planning source of truth; do not replace them with dates or a second plan.
+This is the canonical procedure for turning a request or tracked work item into a tested repository change. The [Autonomous Project Intelligence & Engineering Standard in Notion](https://app.notion.com/p/4004508c33af817fb47fef96a8a69d43) owns the portfolio-level procedure; the [local PIE adapter](OPERATING-CHARTER.md) supplies repository-specific constraints, and this playbook gives the concrete engineering sequence. The dependency-gated roadmap and assumptions register govern PIE-specific gate decisions; do not create duplicate portfolio plans.
 
 ## 0. Interpret the outcome and perform professional discovery
 
