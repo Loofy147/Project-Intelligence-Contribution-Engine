@@ -11,7 +11,7 @@ import json
 import re
 from collections import Counter
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from urllib.parse import urlparse
 from typing import Any
 
@@ -58,8 +58,81 @@ CI_MARKERS = {
     "Jenkinsfile": "Jenkins pipeline definition",
 }
 ALLOWED_MANIFEST_FIELDS = {
-    "schema_version", "id", "name", "description", "repository_url", "tags"
+    "schema_version", "id", "name", "description", "repository_url", "tags",
+    "checklist_paths", "registry_work_item_sources",
 }
+REGISTRY_SOURCE_REQUIRED_FIELDS = {
+    "path", "collection", "id_field", "title_field", "status_field", "active_statuses",
+}
+REGISTRY_SOURCE_OPTIONAL_FIELDS = {
+    "acceptance_criteria_field", "dependencies_field", "priority_field",
+    "kind_field", "required_evidence_field", "requested_by_field",
+}
+FIELD_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _validate_manifest_relative_path(value: Any, *, field: str, suffixes: set[str]) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{field} entries must be non-empty relative paths")
+    if "\\" in value:
+        raise ValueError(f"{field} paths must use forward slashes")
+    path = PurePosixPath(value)
+    if path.is_absolute() or any(part in {".", ".."} for part in value.split("/")):
+        raise ValueError(f"{field} paths must be normalized project-relative paths")
+    if path.suffix.lower() not in suffixes:
+        expected = ", ".join(sorted(suffixes))
+        raise ValueError(f"{field} paths must end with: {expected}")
+    return path.as_posix()
+
+
+def _validate_registry_sources(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        raise ValueError("Project manifest 'registry_work_item_sources' must be a list")
+    result = []
+    seen_paths = set()
+    for item in value:
+        if not isinstance(item, dict):
+            raise ValueError("Registry work-item source entries must be objects")
+        unknown = set(item) - REGISTRY_SOURCE_REQUIRED_FIELDS - REGISTRY_SOURCE_OPTIONAL_FIELDS
+        missing = REGISTRY_SOURCE_REQUIRED_FIELDS - set(item)
+        if unknown:
+            raise ValueError("Unknown registry source fields: " + ", ".join(sorted(unknown)))
+        if missing:
+            raise ValueError("Missing registry source fields: " + ", ".join(sorted(missing)))
+        path = _validate_manifest_relative_path(
+            item["path"], field="registry_work_item_sources", suffixes={".json"}
+        )
+        if path in seen_paths:
+            raise ValueError(f"Duplicate registry work-item source path: {path}")
+        seen_paths.add(path)
+        normalized = {"path": path}
+        for field in ("collection", "id_field", "title_field", "status_field"):
+            field_value = item[field]
+            if not isinstance(field_value, str) or not FIELD_NAME_RE.fullmatch(field_value):
+                raise ValueError(f"Registry source '{field}' must be a simple JSON field name")
+            normalized[field] = field_value
+        statuses = item["active_statuses"]
+        if not isinstance(statuses, list) or not statuses or any(
+            not isinstance(status, str) or not status.strip() for status in statuses
+        ):
+            raise ValueError("Registry source 'active_statuses' must be a non-empty list of strings")
+        normalized["active_statuses"] = sorted({status.strip().casefold() for status in statuses})
+        defaults = {
+            "acceptance_criteria_field": "acceptance_criteria",
+            "dependencies_field": "dependencies",
+            "priority_field": "priority",
+            "kind_field": "kind",
+            "required_evidence_field": "required_evidence",
+            "requested_by_field": "requested_by",
+        }
+        for field, default in defaults.items():
+            field_value = item.get(field, default)
+            if not isinstance(field_value, str) or not FIELD_NAME_RE.fullmatch(field_value):
+                raise ValueError(f"Registry source '{field}' must be a simple JSON field name")
+            normalized[field] = field_value
+        result.append(normalized)
+    return result
+
 
 
 def _is_relative_path_match(path: str, patterns: tuple[str, ...]) -> bool:
@@ -84,6 +157,8 @@ def _load_manifest(root: Path, manifest_path: str | Path | None) -> tuple[dict[s
             "description": "",
             "repository_url": "",
             "tags": [],
+            "checklist_paths": [],
+            "registry_work_item_sources": [],
         }, None
 
     if not path.is_file():
@@ -128,12 +203,27 @@ def _load_manifest(root: Path, manifest_path: str | Path | None) -> tuple[dict[s
     if not isinstance(tags, list) or any(not isinstance(tag, str) for tag in tags):
         raise ValueError("Project manifest 'tags' must be a list of strings")
 
+    checklist_paths = data.get("checklist_paths", [])
+    if not isinstance(checklist_paths, list):
+        raise ValueError("Project manifest 'checklist_paths' must be a list of Markdown paths")
+    normalized_checklist_paths = [
+        _validate_manifest_relative_path(
+            item, field="checklist_paths", suffixes={".md", ".markdown"}
+        )
+        for item in checklist_paths
+    ]
+    if len(set(normalized_checklist_paths)) != len(normalized_checklist_paths):
+        raise ValueError("Project manifest 'checklist_paths' contains duplicates")
+    registry_sources = _validate_registry_sources(data.get("registry_work_item_sources", []))
+
     return {
         "id": project_id,
         "name": name.strip(),
         "description": description.strip(),
         "repository_url": repository_url,
         "tags": [tag.strip() for tag in tags if tag.strip()],
+        "checklist_paths": normalized_checklist_paths,
+        "registry_work_item_sources": registry_sources,
     }, path.relative_to(root).as_posix() if path.is_relative_to(root) else path.name
 
 
@@ -155,6 +245,14 @@ def build_inventory(
         for document in documents
         if isinstance(document, dict) and isinstance(document.get("path"), str)
     )
+    indexed_path_set = set(paths)
+    for checklist_path in project.get("checklist_paths", []):
+        if checklist_path not in indexed_path_set:
+            raise ValueError(f"Configured checklist path was not indexed: {checklist_path}")
+    for source in project.get("registry_work_item_sources", []):
+        if source["path"] not in indexed_path_set:
+            raise ValueError(f"Configured registry source was not indexed: {source['path']}")
+
     sizes = {
         document["path"]: int(document.get("bytes", 0))
         for document in documents

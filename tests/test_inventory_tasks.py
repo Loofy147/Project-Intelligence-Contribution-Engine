@@ -145,3 +145,147 @@ def test_hypothesis_task_stales_when_inventory_no_longer_raises_signal(tmp_path:
     report = verify_task_set(index_after, inventory_after, old_tasks)
     assert report["summary"]["stale"] == 3
     assert all(item["reason"] == "hypothesis_no_longer_detected" for item in report["results"])
+
+
+def test_manifest_configures_only_explicit_checklists_and_registry_sources(tmp_path: Path) -> None:
+    manifest = {
+        "schema_version": 1,
+        "id": "source-project",
+        "name": "Source Project",
+        "checklist_paths": ["plans/current.md"],
+        "registry_work_item_sources": [{
+            "path": "registry.json",
+            "collection": "work_items",
+            "id_field": "work_item_id",
+            "title_field": "title",
+            "status_field": "status",
+            "active_statuses": ["ready", "in_progress"],
+        }],
+    }
+    _write(tmp_path / ".project-intelligence.json", json.dumps(manifest))
+    _write(
+        tmp_path / "plans" / "current.md",
+        "# Current work\n- [ ] Verify this item\n\n~~~markdown\n- [ ] Ignore code example\n~~~\n",
+    )
+    _write(tmp_path / "unconfigured.md", "- [ ] Do not extract this item\n")
+    _write(tmp_path / "registry.json", json.dumps({
+        "work_items": [
+            {"work_item_id": "TASK-1", "title": "Do work", "status": "ready", "acceptance_criteria": ["Proof exists"]},
+            {"work_item_id": "TASK-2", "title": "Already done", "status": "accepted", "acceptance_criteria": ["Done"]},
+        ],
+    }))
+
+    index = build_index(tmp_path)
+    inventory = build_inventory(tmp_path, index)
+    tasks = generate_draft_tasks(index, inventory)
+
+    assert inventory["project"]["checklist_paths"] == ["plans/current.md"]
+    assert len(inventory["project"]["registry_work_item_sources"]) == 1
+    checklist = [task for task in tasks["tasks"] if task["kind"] == "checklist_follow_up"]
+    registry = [task for task in tasks["tasks"] if task["kind"] == "registry_work_item"]
+    assert len(checklist) == 1
+    assert checklist[0]["evidence"]["path"] == "plans/current.md"
+    assert checklist[0]["evidence"]["line_number"] == 2
+    assert len(registry) == 1
+    assert registry[0]["source_work_item_id"] == "TASK-1"
+    assert registry[0]["source_status"] == "ready"
+    assert registry[0]["acceptance_criteria"] == ["Proof exists"]
+    assert registry[0]["canonical_source"] == "repository_registry"
+    assert tasks["summary"]["registry_work_item_tasks"] == 1
+    assert tasks["summary"]["observed_checklist_tasks"] == 1
+    assert all(task["requires_review"] for task in tasks["tasks"])
+
+
+def test_configured_registry_sources_fail_closed_on_paths_and_shape(tmp_path: Path) -> None:
+    _write(tmp_path / ".project-intelligence.json", json.dumps({
+        "schema_version": 1,
+        "id": "unsafe",
+        "name": "Unsafe",
+        "registry_work_item_sources": [{
+            "path": "../outside.json",
+            "collection": "work_items",
+            "id_field": "id",
+            "title_field": "title",
+            "status_field": "status",
+            "active_statuses": ["ready"],
+        }],
+    }))
+    with pytest.raises(ValueError, match="project-relative"):
+        build_inventory(tmp_path, build_index(tmp_path))
+
+    manifest = {
+        "schema_version": 1,
+        "id": "missing",
+        "name": "Missing source",
+        "registry_work_item_sources": [{
+            "path": "registry.json",
+            "collection": "work_items",
+            "id_field": "id",
+            "title_field": "title",
+            "status_field": "status",
+            "active_statuses": ["ready"],
+        }],
+    }
+    _write(tmp_path / ".project-intelligence.json", json.dumps(manifest))
+    _write(tmp_path / "registry.json", '{"not_work_items": []}')
+    index = build_index(tmp_path)
+    with pytest.raises(ValueError, match="no list collection"):
+        generate_draft_tasks(index, build_inventory(tmp_path, index))
+
+
+def test_registry_work_item_verification_uses_record_digest_not_whole_file_digest(tmp_path: Path) -> None:
+    registry_path = tmp_path / "registry.json"
+    registry = {
+        "work_items": [
+            {
+                "work_item_id": "TASK-1",
+                "title": "Verify input freshness",
+                "status": "ready",
+                "acceptance_criteria": ["A stale source is detected."],
+                "dependencies": [],
+            }
+        ]
+    }
+    _write(tmp_path / ".project-intelligence.json", json.dumps({
+        "schema_version": 1,
+        "id": "registry-demo",
+        "name": "Registry Demo",
+        "registry_work_item_sources": [{
+            "path": "registry.json",
+            "collection": "work_items",
+            "id_field": "work_item_id",
+            "title_field": "title",
+            "status_field": "status",
+            "active_statuses": ["ready", "in_progress"],
+        }],
+    }))
+    _write(tmp_path / "README.md", "A registry test project.\n")
+    _write(tmp_path / "tests" / "test_registry.py", "def test_example(): pass\n")
+    _write(tmp_path / ".github" / "workflows" / "tests.yml", "name: tests\non: push\n")
+    _write(registry_path, json.dumps(registry, indent=2))
+    index_before, inventory_before = _snapshot(tmp_path)
+    tasks_before = generate_draft_tasks(index_before, inventory_before)
+    projected = next(task for task in tasks_before["tasks"] if task["kind"] == "registry_work_item")
+
+    report_before = verify_task_set(index_before, inventory_before, tasks_before)
+    assert report_before["summary"]["fresh"] == 1
+    assert report_before["summary"]["missing_acceptance_criteria"] == 0
+
+    # Adding an unrelated record must not stale the selected canonical item.
+    registry["work_items"].append({
+        "work_item_id": "TASK-2", "title": "Other", "status": "accepted",
+        "acceptance_criteria": ["Other item"],
+    })
+    _write(registry_path, json.dumps(registry, indent=2))
+    index_after, inventory_after = _snapshot(tmp_path)
+    fresh = verify_task_set(index_after, inventory_after, tasks_before)
+    assert fresh["summary"]["fresh"] == 1
+
+    # Editing the canonical item invalidates the stored evidence snapshot.
+    registry["work_items"][0]["status"] = "accepted"
+    _write(registry_path, json.dumps(registry, indent=2))
+    index_changed, inventory_changed = _snapshot(tmp_path)
+    stale = verify_task_set(index_changed, inventory_changed, tasks_before)
+    assert stale["summary"]["stale"] == 1
+    assert stale["results"][0]["reason"] == "registry_item_changed"
+    assert projected["source_status"] == "ready"

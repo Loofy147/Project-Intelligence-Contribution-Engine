@@ -1,4 +1,4 @@
-"""Read-only work-plan projection over canonical issues, PRs, and draft findings."""
+"""Read-only work-plan projection over canonical issues, PRs, registry items, and findings."""
 from __future__ import annotations
 
 import json
@@ -25,9 +25,12 @@ def load_snapshot(path: str | Path, collection_key: str) -> dict[str, Any]:
     return data
 
 
-def build_workplan(issue_snapshot: dict[str, Any], pull_snapshot: dict[str, Any] | None = None,
-                   task_set: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Project source records into priority groups without duplicating or changing them."""
+def build_workplan(
+    issue_snapshot: dict[str, Any],
+    pull_snapshot: dict[str, Any] | None = None,
+    task_set: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Project source records without duplicating or changing canonical work."""
     repository = issue_snapshot["source"]["repository"]
     if pull_snapshot and pull_snapshot["source"]["repository"].casefold() != repository.casefold():
         raise ValueError("Issue and pull-request snapshots must refer to the same repository")
@@ -66,35 +69,65 @@ def build_workplan(issue_snapshot: dict[str, Any], pull_snapshot: dict[str, Any]
             })
     pulls.sort(key=lambda item: (item["draft"], item["number"]))
 
-    drafts = []
+    draft_findings = []
+    registry_work_items = []
     if task_set:
         for task in task_set.get("tasks", []):
-            if isinstance(task, dict):
-                drafts.append({
+            if not isinstance(task, dict):
+                continue
+            evidence = task.get("evidence", {})
+            if task.get("kind") == "registry_work_item":
+                registry_work_items.append({
+                    "source_work_item_id": task.get("source_work_item_id"),
+                    "title": task.get("title", ""),
+                    "source_status": task.get("source_status", "unknown"),
+                    "source_path": evidence.get("path", ""),
+                    "source_pointer": evidence.get("json_pointer", ""),
+                    "source_item_sha256": evidence.get("source_item_sha256"),
+                    "canonical_source": "repository_registry",
+                    "requires_review": True,
+                })
+            else:
+                draft_findings.append({
                     "id": task.get("id"), "title": task.get("title", ""),
+                    "kind": task.get("kind", "unknown"),
                     "classification": task.get("classification", "unclassified"),
-                    "status": task.get("status", "draft"), "evidence": task.get("evidence", {}),
-                    "canonical_source": "engine_draft", "requires_review": True,
+                    "status": task.get("status", "draft"), "evidence": evidence,
+                    "canonical_source": task.get("canonical_source", "engine_draft"),
+                    "requires_review": True,
                 })
 
-    priority_counts = {priority: sum(item["priority"] == priority for item in issues)
-                       for priority in ("P0", "P1", "P2", "P3", "unranked")}
+    priority_counts = {
+        priority: sum(item["priority"] == priority for item in issues)
+        for priority in ("P0", "P1", "P2", "P3", "unranked")
+    }
     return {
-        "schema_version": 1, "repository": repository,
+        "schema_version": 1,
+        "repository": repository,
         "source_snapshots": {
             "issues_fetched_at": issue_snapshot["source"].get("fetched_at"),
             "pull_requests_fetched_at": pull_snapshot["source"].get("fetched_at") if pull_snapshot else None,
         },
         "summary": {
-            "existing_issues": len(issues), "issues_by_priority": priority_counts,
-            "existing_pull_requests": len(pulls), "draft_tasks": len(drafts),
-            "created_external_records": 0, "automatic_bounty_creation": False,
+            "existing_issues": len(issues),
+            "issues_by_priority": priority_counts,
+            "existing_pull_requests": len(pulls),
+            "registry_work_items": len(registry_work_items),
+            "draft_tasks": len(draft_findings),
+            "created_external_records": 0,
+            "automatic_bounty_creation": False,
         },
-        "issues": issues, "pull_requests": pulls, "draft_tasks": drafts,
+        "issues": issues,
+        "pull_requests": pulls,
+        "registry_work_items": registry_work_items,
+        "draft_tasks": draft_findings,
         "policy": {
-            "issues_are_canonical": True, "pull_requests_are_proposals": True,
+            "issues_are_canonical": True,
+            "pull_requests_are_proposals": True,
+            "registry_work_items_are_canonical": True,
             "draft_tasks_are_noncanonical_until_approved": True,
-            "automatic_writes": False, "automatic_bounties": False,
+            "automatic_writes": False,
+            "automatic_bounties": False,
             "priority_note": "P0–P3 is parsed only from a leading issue-title prefix; unranked means no priority was declared.",
             "linking_note": "No issue/PR relationship is inferred from similar wording. Verify explicit links before claiming overlap.",
         },
@@ -108,7 +141,9 @@ def render_workplan_markdown(plan: dict[str, Any]) -> str:
         f"- Existing issues: {summary['existing_issues']}",
         f"- Priority counts: P0={priorities['P0']}, P1={priorities['P1']}, P2={priorities['P2']}, P3={priorities['P3']}, unranked={priorities['unranked']}",
         f"- Existing pull requests: {summary['existing_pull_requests']}",
-        f"- Draft findings: {summary['draft_tasks']}", "- External records created: 0", "",
+        f"- Canonical registry work items: {summary.get('registry_work_items', 0)}",
+        f"- Draft findings: {summary['draft_tasks']}",
+        "- External records created: 0", "",
         "> This is a read-only view. Priority is copied from explicit issue-title prefixes. No work is created, changed, closed, merged, assigned, or funded.", "",
         "## Existing issues — canonical work records", "",
     ]
@@ -121,20 +156,32 @@ def render_workplan_markdown(plan: dict[str, Any]) -> str:
             lines.extend([f"### {current if current != 'unranked' else 'Unranked'}", ""])
         labels = ", ".join(issue["labels"]) if issue["labels"] else "unlabeled"
         lines.append(f"- [#{issue['number']} — {issue['title']}]({issue['url']}) ({issue['state']}; {labels})")
+
     lines.extend(["", "## Pull requests — proposed changes", ""])
     if not plan["pull_requests"]:
         lines.append("No pull requests in the selected snapshot.")
     for pr in plan["pull_requests"]:
         status = "draft" if pr["draft"] else "not draft"
         lines.append(f"- [#{pr['number']} — {pr['title']}]({pr['url']}) ({pr['state']}; {status}; {pr['head_ref'] or 'unknown'} → {pr['base_ref'] or 'unknown'})")
+
+    lines.extend(["", "## Canonical registry work items — preserved source records", ""])
+    if not plan.get("registry_work_items"):
+        lines.append("No configured canonical work-item records in the selected registry.")
+    for item in plan.get("registry_work_items", []):
+        lines.append(
+            f"- {item.get('source_work_item_id')} — {item.get('title')} "
+            f"(source status: {item.get('source_status')}; {item.get('source_path')}#{item.get('source_pointer')})"
+        )
+
     lines.extend(["", "## Draft findings — require review", ""])
     if not plan["draft_tasks"]:
-        lines.append("No source-marker or inventory-hypothesis drafts were generated by the current scan.")
+        lines.append("No source-marker, configured-checklist, or inventory-hypothesis drafts were generated by the current scan.")
     for task in plan["draft_tasks"]:
-        lines.append(f"- {task['title']} (classification: {task['classification']}; status: {task['status']}; review required)")
+        lines.append(f"- {task['title']} (kind: {task['kind']}; classification: {task['classification']}; status: {task['status']}; review required)")
     lines.extend([
         "", "## Rules", "",
         "- Do not duplicate a canonical GitHub issue as a second task by default.",
+        "- Repository-registry work items remain anchored to the source registry and are not new external records.",
         "- Do not infer issue/PR linkage from similar titles; verify source links.",
         "- A draft hypothesis is not a confirmed defect and never becomes a bounty automatically.", "",
     ])
@@ -151,4 +198,3 @@ def write_workplan(plan: dict[str, Any], destination: str | Path, *, format: str
     else:
         raise ValueError("Workplan format must be 'json' or 'markdown'")
     path.write_text(content, encoding="utf-8", newline="\n")
-    return path

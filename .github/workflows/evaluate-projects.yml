@@ -75,6 +75,20 @@ jobs:
               "repository_url": os.environ["REPOSITORY_URL"],
               "tags": ["evaluation", "read-only"],
           }
+          # Context Swarm already has a canonical typed registry. Import only its
+          # declared active work-item states, not future-runtime acceptance gates.
+          if manifest["id"] == "context-swarm":
+              manifest["registry_work_item_sources"] = [{
+                  "path": "swarm/registry.json",
+                  "collection": "work_items",
+                  "id_field": "work_item_id",
+                  "title_field": "title",
+                  "status_field": "status",
+                  "active_statuses": [
+                      "ready", "triaged", "in_progress", "blocked",
+                      "conflicted", "needs_information", "review",
+                  ],
+              }]
           target = Path(os.environ["GITHUB_WORKSPACE"]) / "evaluation-manifests" / f"{manifest['id']}.json"
           target.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
           print(f"Created external manifest: {target.name}")
@@ -134,7 +148,10 @@ jobs:
               for item in inventory["languages"][:8]
           ) or "none detected"
           kinds = Counter(task["kind"] for task in task_set["tasks"])
-          observed = [task for task in task_set["tasks"] if task["classification"] == "observed"]
+          markers = [task for task in task_set["tasks"] if task["kind"] == "marker_follow_up"]
+          checklists = [task for task in task_set["tasks"] if task["kind"] == "checklist_follow_up"]
+          registry_items = [task for task in task_set["tasks"] if task["kind"] == "registry_work_item"]
+          observed = markers + checklists
           hypotheses = [task for task in task_set["tasks"] if task["classification"] == "hypothesis"]
 
           lines = [
@@ -146,8 +163,10 @@ jobs:
               f"- Languages: {languages}",
               f"- Recognized technology markers: {len(inventory['technology_signals'])}",
               f"- Review hypotheses from inventory: {len(inventory['review_signals'])}",
-              f"- Draft tasks: {task_summary['total_drafts']} "
-              f"({task_summary['observed_marker_tasks']} observed markers; "
+              f"- Generated task records: {task_summary['total_drafts']} "
+              f"({task_summary['observed_marker_tasks']} source markers; "
+              f"{task_summary.get('observed_checklist_tasks', 0)} configured checklist items; "
+              f"{task_summary.get('registry_work_item_tasks', 0)} canonical registry projections; "
               f"{task_summary['hypothesis_review_tasks']} hypotheses)",
               f"- Existing GitHub issues: {issue_snapshot['summary']['issues_found']} "
               f"({issue_snapshot['summary']['open']} open in this snapshot)",
@@ -163,12 +182,18 @@ jobs:
               lines.append(f"- **{signal['title']}**: {signal['observed_fact']} Hypothesis: {signal['hypothesis']}")
           if not inventory["review_signals"]:
               lines.append("- None generated.")
-          lines.extend(["", "## Sample source-marker drafts", ""])
+          lines.extend(["", "## Source markers and configured checklist items", ""])
           for task in observed[:15]:
               evidence = task["evidence"]
               lines.append(f"- {evidence.get('path')}:{evidence.get('line_number')} — {task['title']}")
           if not observed:
-              lines.append("- No source-marker drafts generated.")
+              lines.append("- No marker/checklist tasks generated.")
+          lines.extend(["", "## Canonical registry work-item projections", ""])
+          for task in registry_items[:25]:
+              evidence = task["evidence"]
+              lines.append(f"- {task.get('source_work_item_id')} — {task['title']} (source status: {task.get('source_status')}; {evidence.get('path')}#{evidence.get('json_pointer')})")
+          if not registry_items:
+              lines.append("- No configured active registry work items.")
           lines.extend(["", "## Existing GitHub issues (canonical work records)", ""])
           for issue in issue_snapshot["issues"][:10]:
               labels = ", ".join(issue["labels"]) or "unlabeled"
@@ -199,6 +224,12 @@ jobs:
               "github_pull_requests": pull_snapshot["pull_requests"][:25],
               "workplan_summary": workplan["summary"],
               "sample_observed_tasks": observed[:15],
+              "canonical_registry_work_items": [{
+                  "source_work_item_id": task.get("source_work_item_id"),
+                  "title": task["title"],
+                  "source_status": task.get("source_status"),
+                  "evidence": task.get("evidence"),
+              } for task in registry_items[:25]],
               "sample_hypothesis_tasks": hypotheses[:10],
           }, indent=2) + "\n", encoding="utf-8")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:

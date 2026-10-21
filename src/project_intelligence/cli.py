@@ -234,8 +234,10 @@ def main(argv: list[str] | None = None) -> int:
             write_tasks(task_set, json_path, format="json")
             write_tasks(task_set, markdown_path, format="markdown")
             print(
-                f"Wrote {task_set['summary']['total_drafts']} draft tasks "
-                f"({task_set['summary']['observed_marker_tasks']} observed markers; "
+                f"Wrote {task_set['summary']['total_drafts']} task records "
+                f"({task_set['summary']['observed_marker_tasks']} source markers; "
+                f"{task_set['summary'].get('observed_checklist_tasks', 0)} checklist items; "
+                f"{task_set['summary'].get('registry_work_item_tasks', 0)} canonical registry projections; "
                 f"{task_set['summary']['hypothesis_review_tasks']} hypotheses)."
             )
             print(f"JSON: {json_path.expanduser().resolve()}")
