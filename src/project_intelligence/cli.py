@@ -13,6 +13,8 @@ from project_intelligence.indexer import (
 )
 from project_intelligence.inventory import build_inventory, write_inventory
 from project_intelligence.github_issues import fetch_github_issues, write_issue_snapshot
+from project_intelligence.github_pulls import fetch_github_pull_requests, write_pull_request_snapshot
+from project_intelligence.workplan import build_workplan, load_snapshot, write_workplan
 from project_intelligence.search import search_index
 from project_intelligence.tasks import (
     generate_draft_tasks,
@@ -93,6 +95,26 @@ def _parser() -> argparse.ArgumentParser:
     issues_parser.add_argument("--markdown-output", type=Path, help="Markdown index path")
     issues_parser.add_argument("--timeout", type=float, default=20.0, help="per-request timeout in seconds")
 
+    pulls_parser = subcommands.add_parser(
+        "github-pulls",
+        help="read-only snapshot of pull requests from a public GitHub repository",
+    )
+    pulls_parser.add_argument("repository", help="public GitHub OWNER/REPO")
+    pulls_parser.add_argument("--state", choices=("open", "closed", "all"), default="open")
+    pulls_parser.add_argument("--json-output", type=Path, help="JSON snapshot path")
+    pulls_parser.add_argument("--markdown-output", type=Path, help="Markdown report path")
+    pulls_parser.add_argument("--timeout", type=float, default=20.0, help="per-request timeout in seconds")
+
+    workplan_parser = subcommands.add_parser(
+        "workplan",
+        help="prioritize existing GitHub records separately from draft findings",
+    )
+    workplan_parser.add_argument("--issues", type=Path, required=True, help="issue snapshot JSON")
+    workplan_parser.add_argument("--pulls", type=Path, help="optional pull-request snapshot JSON")
+    workplan_parser.add_argument("--tasks", type=Path, help="optional task-draft JSON")
+    workplan_parser.add_argument("--json-output", type=Path, help="JSON workplan output")
+    workplan_parser.add_argument("--markdown-output", type=Path, help="Markdown workplan output")
+
     return parser
 
 
@@ -124,6 +146,46 @@ def main(argv: list[str] | None = None) -> int:
             print(f"JSON: {json_path.expanduser().resolve()}")
             print(f"Report: {markdown_path.expanduser().resolve()}")
             print("Read-only snapshot; no issue was created, changed, or closed.")
+            return 0
+
+        if args.command == "github-pulls":
+            snapshot = fetch_github_pull_requests(
+                args.repository, state=args.state, timeout=args.timeout
+            )
+            prefix = args.repository.replace("/", "--")
+            json_path = args.json_output or (Path(".project-intelligence") / f"{prefix}-pulls.json")
+            markdown_path = args.markdown_output or (Path(".project-intelligence") / f"{prefix}-pulls.md")
+            write_pull_request_snapshot(snapshot, json_path, format="json")
+            write_pull_request_snapshot(snapshot, markdown_path, format="markdown")
+            summary = snapshot["summary"]
+            print(
+                f"Read {summary['pull_requests_found']} pull requests from {args.repository}: "
+                f"{summary['open']} open, {summary['drafts']} drafts."
+            )
+            print(f"JSON: {json_path.expanduser().resolve()}")
+            print(f"Report: {markdown_path.expanduser().resolve()}")
+            print("Read-only snapshot; no pull request was changed or merged.")
+            return 0
+
+        if args.command == "workplan":
+            issues = load_snapshot(args.issues, "issues")
+            pulls = load_snapshot(args.pulls, "pull_requests") if args.pulls else None
+            task_set = load_task_set(args.tasks) if args.tasks else None
+            plan = build_workplan(issues, pulls, task_set)
+            json_path = args.json_output or Path(".project-intelligence/workplan.json")
+            markdown_path = args.markdown_output or Path(".project-intelligence/workplan.md")
+            write_workplan(plan, json_path, format="json")
+            write_workplan(plan, markdown_path, format="markdown")
+            counts = plan["summary"]["issues_by_priority"]
+            print(
+                f"Workplan for {plan['repository']}: {plan['summary']['existing_issues']} issues "
+                f"(P0={counts['P0']}, P1={counts['P1']}), "
+                f"{plan['summary']['existing_pull_requests']} pull requests, "
+                f"{plan['summary']['draft_tasks']} draft findings."
+            )
+            print(f"JSON: {json_path.expanduser().resolve()}")
+            print(f"Report: {markdown_path.expanduser().resolve()}")
+            print("Read-only projection; no external records were created or changed.")
             return 0
 
         if args.command == "index":

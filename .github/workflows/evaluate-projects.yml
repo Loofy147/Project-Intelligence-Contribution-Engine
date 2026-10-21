@@ -100,6 +100,12 @@ jobs:
           pie github-issues "$REPOSITORY" --state open \
             --json-output "$OUT/issues.json" \
             --markdown-output "$OUT/issues.md"
+          pie github-pulls "$REPOSITORY" --state open \
+            --json-output "$OUT/pulls.json" \
+            --markdown-output "$OUT/pulls.md"
+          pie workplan --issues "$OUT/issues.json" --pulls "$OUT/pulls.json" --tasks "$OUT/tasks.json" \
+            --json-output "$OUT/workplan.json" \
+            --markdown-output "$OUT/workplan.md"
           pie verify-tasks "$TARGET" --manifest "$MANIFEST" \
             --task-file "$OUT/tasks.json" > "$OUT/verification.txt"
 
@@ -119,6 +125,8 @@ jobs:
           inventory = json.loads((root / "inventory.json").read_text(encoding="utf-8"))
           task_set = json.loads((root / "tasks.json").read_text(encoding="utf-8"))
           issue_snapshot = json.loads((root / "issues.json").read_text(encoding="utf-8"))
+          pull_snapshot = json.loads((root / "pulls.json").read_text(encoding="utf-8"))
+          workplan = json.loads((root / "workplan.json").read_text(encoding="utf-8"))
           verification_text = (root / "verification.txt").read_text(encoding="utf-8")
           task_summary = task_set["summary"]
           languages = ", ".join(
@@ -143,6 +151,9 @@ jobs:
               f"{task_summary['hypothesis_review_tasks']} hypotheses)",
               f"- Existing GitHub issues: {issue_snapshot['summary']['issues_found']} "
               f"({issue_snapshot['summary']['open']} open in this snapshot)",
+              f"- Existing pull requests: {pull_snapshot['summary']['pull_requests_found']} "
+              f"({pull_snapshot['summary']['open']} open; {pull_snapshot['summary']['drafts']} drafts)",
+              f"- Work-plan issue priority counts: {workplan['summary']['issues_by_priority']}",
               f"- Task kinds: {', '.join(f'{key}={value}' for key, value in sorted(kinds.items())) or 'none'}",
               "",
               "## Inventory hypotheses",
@@ -164,7 +175,13 @@ jobs:
               lines.append(f"- [#{issue['number']} — {issue['title']}]({issue['url']}) ({issue['state']}; {labels})")
           if not issue_snapshot["issues"]:
               lines.append("- No issues found in the selected state.")
-          lines.extend(["", "## Verification", "", "~~~text", verification_text.rstrip(), "~~~", ""])
+          lines.extend(["", "## Open pull requests (proposals)", ""])
+          for pr in pull_snapshot["pull_requests"][:10]:
+              status = "draft" if pr["draft"] else "not draft"
+              lines.append(f"- [#{pr['number']} — {pr['title']}]({pr['url']}) ({status}; {pr['head_ref']} → {pr['base_ref']})")
+          if not pull_snapshot["pull_requests"]:
+              lines.append("- No open pull requests found.")
+          lines.extend(["", "## Priority work plan", "", "~~~markdown", (root / "workplan.md").read_text(encoding="utf-8").rstrip(), "~~~", "", "## Verification", "", "~~~text", verification_text.rstrip(), "~~~", ""])
           summary = "\n".join(lines)
           (root / "summary.md").write_text(summary, encoding="utf-8")
           (root / "summary.json").write_text(json.dumps({
@@ -178,6 +195,9 @@ jobs:
               "task_kinds": dict(kinds),
               "github_issue_summary": issue_snapshot["summary"],
               "github_issues": issue_snapshot["issues"][:25],
+              "github_pull_request_summary": pull_snapshot["summary"],
+              "github_pull_requests": pull_snapshot["pull_requests"][:25],
+              "workplan_summary": workplan["summary"],
               "sample_observed_tasks": observed[:15],
               "sample_hypothesis_tasks": hypotheses[:10],
           }, indent=2) + "\n", encoding="utf-8")
