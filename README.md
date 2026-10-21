@@ -6,6 +6,7 @@ The Python CLI indexes readable project files, ranks keyword search results, inv
 
 ## Start here (including AI coding agents)
 
+- **Professional operating standard:** [Operating charter](docs/OPERATING-CHARTER.md)
 - **Mandatory agent instructions:** [`AGENTS.md`](AGENTS.md)
 - **Do the task step by step:** [Execution playbook](docs/EXECUTION-PLAYBOOK.md)
 - **Choose a gate using dependencies and evidence:** [Dependency-gated roadmap](docs/ROADMAP.md)
@@ -15,7 +16,7 @@ The Python CLI indexes readable project files, ranks keyword search results, inv
 - **Transfer work without losing state:** [Session handoff template](docs/SESSION-HANDOFF-TEMPLATE.md)
 - **Review checklist:** [Pull request template](.github/pull_request_template.md)
 
-Agents should inspect the current repository state, choose the canonical task source, implement the requested change, run the available checks, inspect the final diff, and report evidence. A plan alone is not completion when safe implementation is possible.
+Agents and contributors should treat the request as an outcome, identify the missing professional work themselves, research relevant approaches, inspect the actual state, implement the smallest complete solution, verify it, and update the canonical project records. Do not wait for the user to enumerate standard concerns. A plan alone is not completion when safe implementation is possible. Use the charter proportionately: it sets the quality floor, not a requirement for unnecessary ceremony.
 
 ## Capabilities
 
