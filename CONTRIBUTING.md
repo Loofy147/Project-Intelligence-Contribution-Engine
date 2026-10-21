@@ -2,7 +2,7 @@
 
 ## Start here
 
-Before changing code, follow the repository's mandatory [agent instructions](AGENTS.md) and [task execution playbook](docs/EXECUTION-PLAYBOOK.md). Use the [repository map](docs/REPOSITORY-MAP.md) to find the implementation and tests. These instructions apply to human contributors and AI coding agents.
+Before changing code, follow the repository's mandatory [agent instructions](AGENTS.md) and [task execution playbook](docs/EXECUTION-PLAYBOOK.md). Use the [repository map](docs/REPOSITORY-MAP.md) to find the implementation and tests. Choose work from the dependency-gated [roadmap](docs/ROADMAP.md); resolve relevant open assumptions using the [assumptions register](docs/ASSUMPTIONS-REGISTER.md). These instructions apply to human contributors and AI coding agents.
 
 ## Ground rules
 
@@ -31,6 +31,7 @@ pie --help
 5. Run the full test suite and applicable CLI/integration checks. Record checks that could not run.
 6. Update the README or architecture notes when interfaces, data formats, commands, or trust boundaries change.
 7. Review the full diff for secrets, generated files, accidental side effects, broken documentation links, and unsupported claims.
-8. Summarize concrete evidence, exact validation results, limitations, and one next action in the PR. Do not claim that a test or deployment passed unless you observed the result.
+8. If this change affects a gate or assumption, update the roadmap and assumptions register together and record the selected scenario. Every OPEN item needs an owner and a falsification method.
+9. Summarize concrete evidence, exact validation results, limitations, and one next action in the PR. Do not claim that a test or deployment passed unless you observed the result.
 
 For cross-session work, complete [the session handoff template](docs/SESSION-HANDOFF-TEMPLATE.md) and re-check repository HEAD before continuing.
