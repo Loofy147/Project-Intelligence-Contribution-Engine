@@ -31,6 +31,7 @@ Agents should inspect the current repository state, choose the canonical task so
 - Fetch public GitHub issue and PR metadata via read-only GET requests.
 - Build a work plan that keeps canonical issues, PR proposals, repository-registry items, and engine-generated draft findings distinct.
 - Compare previous/current GitHub issue and optional paired PR snapshots to expose metadata changes without inferring closure, deletion, issue/PR linkage, or task completion.
+- Audit explicit GitHub issue/PR cross-reference events while preserving source IDs, URLs, event evidence, repository scope, and unknown completion state.
 
 ## Requirements
 
@@ -122,6 +123,22 @@ pie compare-snapshots --previous-issues .project-intelligence/issues-before.json
 ~~~
 
 For pull requests, pass both `--previous-pulls` and `--current-pulls`. The command is read-only. Missing records are described as absent from the current snapshot, not closed or deleted; metadata differences do not prove the work is complete.
+
+## Audit explicit GitHub relationships
+
+Use the snapshots as the defined target set. The command reads each selected record's GitHub timeline and keeps only actual `cross-referenced` events.
+
+~~~bash
+pie github-issues OWNER/REPO --state open
+pie github-pulls OWNER/REPO --state open
+pie github-relations \
+  --issues .project-intelligence/OWNER--REPO-issues.json \
+  --pulls .project-intelligence/OWNER--REPO-pulls.json
+~~~
+
+Replace `OWNER/REPO` and the generated filenames with the actual repository and files. The audit defaults to a maximum of 50 target records; raise `--max-records` explicitly when needed (maximum 500). It writes JSON and Markdown reports under `.project-intelligence/`.
+
+An internal relationship is emitted only when the GitHub timeline event identifies the source record and its repository matches the audited repository. External or unverified references are reported separately. A reference is not proof that a PR fixes, closes, or completes an issue. The audit is limited to the supplied snapshots; absence of an event does not prove that no relationship exists.
 
 ## Privacy and authority boundaries
 
