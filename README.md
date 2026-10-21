@@ -169,6 +169,10 @@ unset PIE_AI_API_KEY
 
 See the [AI review gateway contract](docs/AI-REVIEW-GATEWAY.md) and [open-source reuse research](docs/OSS-REUSE-RESEARCH.md). Model output is untrusted; verify every recommendation before acting.
 
+## Planning contract tests
+
+The core test suite also validates the structure of `docs/ASSUMPTIONS-REGISTER.md` and `docs/ROADMAP.md`. It checks status vocabularies, owner/falsification/evidence/scenario requirements, and that gate dependencies and linked assumption IDs refer to declared records. These tests protect document structure; they do not decide whether the underlying evidence or owner decisions are substantively correct.
+
 ## Development
 
 ~~~
