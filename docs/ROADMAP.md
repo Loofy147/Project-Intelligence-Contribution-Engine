@@ -143,7 +143,7 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-07 — Decide whether private-repository access is actually required
 
-- **State:** BLOCKED (scope decision required)
+- **State:** BLOCKED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00
 - **Assumption to resolve:** [A-006](ASSUMPTIONS-REGISTER.md#a-006--private-repository-support-is-required-for-the-intended-evaluation-scope).
@@ -154,7 +154,7 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-08 — Decide whether local JSON persistence is insufficient
 
-- **State:** DEFERRED until a concrete requirement is demonstrated
+- **State:** DEFERRED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00
 - **Assumption to monitor:** [A-007](ASSUMPTIONS-REGISTER.md#a-007--local-json-persistence-is-insufficient-for-a-demonstrated-requirement).
