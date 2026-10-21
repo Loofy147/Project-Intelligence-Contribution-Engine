@@ -49,6 +49,10 @@ To register a project, add an optional `.project-intelligence.json` in its root.
 - Hypothesis tasks are intentionally low-confidence review prompts. Confirm the gap before implementation.
 - No task is automatically published, assigned, or converted into a funded bounty. Verification is read-only and does not approve tasks. GitHub issue snapshots use public GET endpoints and retain original issue URLs rather than creating duplicate task records.
 
+## Optional AI routing integration
+
+The core Project Intelligence CLI remains local-first and does not require an AI service. For optional project-scoped model access, this repository includes the [OmniRoute Workbench integration](integrations/omniroute-workbench/README.md). It uses the separate [OmniRoute](https://github.com/diegosouzapw/OmniRoute) service and adds per-project keys, task-based routing, output-token caps, request limits, and a local-only API gateway. Follow the integration guide for setup and security limits.
+
 ## Development
 
 ~~~bash
