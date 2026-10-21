@@ -9,6 +9,7 @@ What user-visible behavior or documented contract does this change deliver?
 - [ ] Architecture, data, security/privacy, reliability and UX concerns assessed where applicable.
 - [ ] Existing tools, APIs, MCPs, datasets, standards, and open-source options researched when they could materially improve the outcome.
 - [ ] Agent/contributor guidance, operations, and durable documentation updated where affected.
+- [ ] Existing canonical Notion work, goal, research and integration records were reused rather than copied; HOS Change Signature ID/record is linked for the coherent change batch.
 - [ ] Complexity and process overhead were removed where they do not create meaningful protection or value.
 
 ## Evidence and canonical task
