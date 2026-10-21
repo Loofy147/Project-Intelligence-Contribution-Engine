@@ -32,17 +32,17 @@ A gate is a testable capability or decision boundary. Each gate declares an owne
 
 ```text
 GATE-00 Current baseline (PASSED)
-  ├── GATE-01 Heuristic task-candidate quality (BLOCKED by the policy target in A-001; evaluates A-002)
-  │     ├── GATE-04 Human approval and closure protocol
-  │     ├── GATE-05 Structured readiness parsing (also depends on GATE-02)
+  ├── GATE-01 Heuristic task-candidate quality (BLOCKED by A-001 decision; evaluates A-002)
+  │     ├── GATE-04 Human approval and closure protocol (also depends on GATE-02)
+  │     ├── GATE-05 Structured readiness parsing (also depends on GATE-02; evaluates A-008)
   │     └── GATE-06 AI review value experiment (evaluates A-004)
   ├── GATE-02 Source snapshot comparison and freshness (PASSED)
   │     └── GATE-03 Explicit issue/PR relationships (PASSED; evaluates A-005)
-  └── GATE-12 Planning-contract validation in CI (PASSED)
-  └── GATE-13 Professional operating charter adoption (PASSED)
-  ├── GATE-11 Keyword-search quality (BLOCKED by the policy target in A-003)
+  ├── GATE-11 Keyword-search quality (BLOCKED by A-003 decision)
   ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
-  └── GATE-08 Persistence decision (DEFERRED until a concrete requirement is demonstrated; monitors A-007)
+  ├── GATE-08 Persistence decision (DEFERRED until a concrete requirement; monitors A-007)
+  └── GATE-12 Planning-contract validation in CI (PASSED)
+        └── GATE-13 Professional operating charter adoption (PASSED)
 
 GATE-03 + GATE-04 + applicable access decision
   └── GATE-09 ContribQuest read-only workflow integration
