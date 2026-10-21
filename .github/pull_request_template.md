@@ -19,6 +19,7 @@ What user-visible behavior or documented contract does this change deliver?
 - [ ] Tests cover the new or corrected behavior where applicable.
 - [ ] Relevant documentation and examples match the implementation.
 - [ ] Canonical task state was not changed without supporting evidence.
+- [ ] If an assumption or roadmap gate changed, its owner, falsification evidence, scenario outcome, and dependency state are recorded in the canonical register/roadmap.
 
 ## Validation
 
