@@ -8,6 +8,8 @@ The Python CLI indexes readable project files, ranks keyword search results, inv
 
 - **Mandatory agent instructions:** [`AGENTS.md`](AGENTS.md)
 - **Do the task step by step:** [Execution playbook](docs/EXECUTION-PLAYBOOK.md)
+- **Choose a gate using dependencies and evidence:** [Dependency-gated roadmap](docs/ROADMAP.md)
+- **Resolve open questions by falsification:** [Assumptions register](docs/ASSUMPTIONS-REGISTER.md)
 - **Find the correct code/tests/docs:** [Repository map](docs/REPOSITORY-MAP.md)
 - **Create well-defined work:** [Work-item template](docs/WORK-ITEM-TEMPLATE.md)
 - **Transfer work without losing state:** [Session handoff template](docs/SESSION-HANDOFF-TEMPLATE.md)
@@ -28,6 +30,7 @@ Agents should inspect the current repository state, choose the canonical task so
 - Verify source-line, checklist and registry evidence freshness and report missing acceptance criteria.
 - Fetch public GitHub issue and PR metadata via read-only GET requests.
 - Build a work plan that keeps canonical issues, PR proposals, repository-registry items, and engine-generated draft findings distinct.
+- Compare previous/current GitHub issue and optional paired PR snapshots to expose metadata changes without inferring closure, deletion, issue/PR linkage, or task completion.
 
 ## Requirements
 
@@ -108,6 +111,17 @@ pie workplan \
 ~~~
 
 Replace `/path/to/local/contribquest-checkout` with a local checkout before running the task generator. GitHub commands use public API GET requests and can be affected by rate limits. No authentication is requested and no issue or PR is modified. The work plan reads explicit leading `[P0]`–`[P3]` prefixes from issue titles; it does not infer issue/PR relationships based on similar wording.
+
+## Compare source snapshots
+
+Capture snapshots at two points, using the same repository. For a complete state comparison, request `--state all` at both points. Then compare them:
+
+~~~bash
+pie github-issues OWNER/REPO --state all --json-output .project-intelligence/issues-after.json
+pie compare-snapshots --previous-issues .project-intelligence/issues-before.json --current-issues .project-intelligence/issues-after.json
+~~~
+
+For pull requests, pass both `--previous-pulls` and `--current-pulls`. The command is read-only. Missing records are described as absent from the current snapshot, not closed or deleted; metadata differences do not prove the work is complete.
 
 ## Privacy and authority boundaries
 
