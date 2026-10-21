@@ -1,0 +1,64 @@
+{
+  "routeByTask": {
+    "general": "auto",
+    "coding": "auto/coding",
+    "reasoning": "auto/smart",
+    "research": "auto/smart",
+    "fast": "auto/fast",
+    "cheap": "auto/cheap",
+    "offline": "auto/offline"
+  },
+  "default": {
+    "maxOutputTokens": 4096,
+    "maxBodyBytes": 1048576,
+    "timeoutMs": 120000,
+    "maxRequestsPerMinute": 30,
+    "allowedTaskClasses": [
+      "general",
+      "coding",
+      "reasoning",
+      "research",
+      "fast",
+      "cheap",
+      "offline"
+    ]
+  },
+  "projects": {
+    "default": {},
+    "project-intelligence": {
+      "maxOutputTokens": 4096,
+      "maxRequestsPerMinute": 30,
+      "allowedTaskClasses": [
+        "general",
+        "coding",
+        "reasoning",
+        "research",
+        "fast",
+        "cheap",
+        "offline"
+      ]
+    },
+    "contribquest": {
+      "maxOutputTokens": 4096,
+      "maxRequestsPerMinute": 20,
+      "allowedTaskClasses": [
+        "general",
+        "coding",
+        "reasoning",
+        "fast",
+        "cheap"
+      ]
+    },
+    "context-swarm": {
+      "maxOutputTokens": 4096,
+      "maxRequestsPerMinute": 20,
+      "allowedTaskClasses": [
+        "general",
+        "coding",
+        "reasoning",
+        "research",
+        "cheap"
+      ]
+    }
+  }
+}

@@ -1,0 +1,38 @@
+services:
+  omniroute:
+    image: diegosouzapw/omniroute:3.8.52
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:20128:20128"
+    environment:
+      JWT_SECRET: ${OMNIROUTE_JWT_SECRET:?Set OMNIROUTE_JWT_SECRET in .env}
+      API_KEY_SECRET: ${OMNIROUTE_API_KEY_SECRET:?Set OMNIROUTE_API_KEY_SECRET in .env}
+      STORAGE_ENCRYPTION_KEY: ${OMNIROUTE_STORAGE_ENCRYPTION_KEY:?Set OMNIROUTE_STORAGE_ENCRYPTION_KEY in .env}
+      AUTH_COOKIE_SECURE: "false"
+    volumes:
+      - omniroute-data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:20128/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+
+  workbench:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      omniroute:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:20129:20129"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 20129
+      OMNIROUTE_BASE_URL: http://omniroute:20128
+      OMNIROUTE_API_KEY: ${OMNIROUTE_API_KEY:?Create a dedicated API key in OmniRoute and set OMNIROUTE_API_KEY}
+      WORKBENCH_API_KEYS_JSON: ${WORKBENCH_API_KEYS_JSON:?Set project API keys in .env}
+    profiles: ["workbench"]
+
+volumes:
+  omniroute-data:
