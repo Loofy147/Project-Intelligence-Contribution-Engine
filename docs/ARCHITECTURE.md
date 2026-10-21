@@ -11,6 +11,7 @@
 - **Work-plan projection**: sorts existing issues by an explicit leading `[P0]`–`[P3]` title prefix, and keeps issues, proposed PRs, canonical registry items and engine-generated draft findings separate.
 - **CLI**: exposes index, search, inventory, GitHub snapshot, work-plan, task-draft and evidence-verification operations.
 - **Snapshot comparison**: compares same-repository issue snapshots and optional paired PR snapshots by canonical record number; reports metadata differences and filtered-query coverage without changing records or inferring relationships/completion.
+- **Explicit relationship audit**: reads timelines for snapshot-selected issues/PRs and extracts only GitHub `cross-referenced` events. It preserves source/target types, numbers, URLs, actor, time, timeline evidence URL, repository scope, and an explicit unknown-completion state; external/unverified references remain separate.
 
 
 - **Optional AI review adapter**: sends only allowlisted task metadata to a configured OpenAI-compatible Workbench, requires a project key, defaults to loopback, validates task IDs/enums/lengths, and writes a separate advisory report.
@@ -27,7 +28,8 @@
 8. When explicitly requested, fetch public GitHub issue/PR metadata and preserve original external identifiers and URLs.
 9. Build a read-only work-plan view without creating or changing external records.
 10. Compare previous/current source snapshots when explicitly requested; report changed metadata, missing records, and query coverage without interpreting absence as closure/deletion.
-11. Optionally ask OmniRoute Workbench to review task metadata; response validation is local, and the output remains advisory only.
+11. When requested, inspect timelines for the supplied snapshot records and report explicit cross-reference events only. Do not infer relations from title similarity or infer that a reference completes the target.
+12. Optionally ask OmniRoute Workbench to review task metadata; response validation is local, and the output remains advisory only.
 
 ## Manifest allowlists
 
@@ -45,7 +47,8 @@
 - Missing acceptance criteria are blockers; freshness alone never implies approval. No record is execution-eligible until its explicit approval contract is met.
 - Existing GitHub issues remain canonical work records. Pull requests remain proposed changes. The engine does not infer that a PR resolves an issue merely because titles look similar.
 - Generated drafts cannot publish issues, assign work, create bounties, award XP, merge PRs, or edit scanned source code.
-- Snapshot comparisons report only visible metadata deltas. A missing item in a filtered query is not proof of closure, deletion, resolution, or completion. No issue/PR relationship is inferred from title similarity.
+- Snapshot comparisons report only visible metadata deltas. A missing item in a filtered query is not proof of closure, deletion, resolution, or completion.
+- The relationship audit extracts only explicit GitHub timeline cross-reference events. Timeline absence does not prove no relationship exists, external references are not internal links, and cross-reference presence does not prove completion. No issue/PR relationship is inferred from title similarity.
 
 ## Trust and safety boundaries
 
