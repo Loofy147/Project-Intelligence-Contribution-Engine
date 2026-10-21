@@ -13,13 +13,13 @@ The [Professional Operating Charter](docs/OPERATING-CHARTER.md) is the baseline 
 ## Mandatory startup sequence
 
 1. Read this file and [README.md](README.md).
-2. Read [docs/OPERATING-CHARTER.md](docs/OPERATING-CHARTER.md), [docs/EXECUTION-PLAYBOOK.md](docs/EXECUTION-PLAYBOOK.md), [docs/REPOSITORY-MAP.md](docs/REPOSITORY-MAP.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ASSUMPTIONS-REGISTER.md](docs/ASSUMPTIONS-REGISTER.md). Read [docs/PORTFOLIO-CONTEXT.md](docs/PORTFOLIO-CONTEXT.md) whenever a task crosses project or system boundaries.
-3. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) plus the relevant feature document before changing behavior.
-4. Inspect the actual working state: current branch, HEAD, uncommitted changes, target files, tests, and current CI where accessible. Never assume a previous conversation's state is current.
-5. Run the baseline checks when a working checkout and execution environment are available. Record failures before changing code so existing failures are not misreported as regressions.
-6. Find the canonical task and its acceptance criteria. If no task is supplied and the user asks to continue implementation, select a READY roadmap gate using the dependency and scenario rules; never select an item merely because it appears first in a document.
-
-Do not ask the user to repeat information already available in the repository or current task. Make reasonable, reversible choices and proceed. Ask a question only when a missing decision would change security, external authority, cost, data loss, licensing rights, or the required user-visible behavior and the repository cannot answer it.
+2. Before treating omitted requirements as unknown or asking the user to repeat context, search/fetch the existing [Integrated Operations OS in Notion](https://app.notion.com/p/3f84508c33af815a9a5dd587d3a46f04), [Professional & Technical Collaboration Profile](https://app.notion.com/p/3ff4508c33af81a9aa47c4a3d5f920b4), relevant project baseline/handoff, work item, decision, integration/provider registry and prior research when the Notion connection is available. Follow canonical links and do not duplicate their records.
+3. Read [docs/OPERATING-CHARTER.md](docs/OPERATING-CHARTER.md), including its context-acquisition protocol.
+4. Read [docs/EXECUTION-PLAYBOOK.md](docs/EXECUTION-PLAYBOOK.md), [docs/REPOSITORY-MAP.md](docs/REPOSITORY-MAP.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ASSUMPTIONS-REGISTER.md](docs/ASSUMPTIONS-REGISTER.md).
+5. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) plus the relevant feature document before changing behavior.
+6. Inspect the actual working state: current branch, HEAD, uncommitted changes, target files, tests, and current CI where accessible. Never assume a previous conversation's state is current.
+7. Run the baseline checks when a working checkout and execution environment are available. Record failures before changing code so existing failures are not misreported as regressions.
+8. Find the canonical task and its acceptance criteria. If no task is supplied and the user asks to continue implementation, select a READY roadmap gate using the dependency and scenario rules; never select an item merely because it appears first in a document.
 
 ## Repository map
 
@@ -49,9 +49,10 @@ Do not ask the user to repeat information already available in the repository or
 8. **Test observable behavior.** Add or update focused tests for behavior changes. Do not weaken tests to get a green run.
 9. **Keep docs honest.** Update docs when commands, interfaces, schemas, trust boundaries, or supported behavior changes. Never report tests, CI, deployments, or external state as verified unless the result was actually observed.
 10. **Minimize scope.** Do not reformat or refactor unrelated code. Do not delete existing files or rewrite history to simplify a task.
-11. Planning is evidence-driven, not date-driven. Every OPEN assumption must have a named owner, falsification method, required evidence, and scenario outcomes in `docs/ASSUMPTIONS-REGISTER.md`. Never silently resolve a policy question for the maintainer. Update the roadmap and register together when a gate or assumption changes.
-12. Relationship claims require canonical relation evidence. For GitHub issue/PR links, accept only an explicit timeline cross-reference event or maintainer-confirmed mapping; a relation never proves resolution or acceptance.
-13. Apply `docs/OPERATING-CHARTER.md` proactively. Discover relevant tools, APIs, MCPs, datasets, services, standards, and open-source options when they may materially improve an outcome; assess security, rights, cost, reliability, and fit, and never add or invoke them merely for decoration. Do not wait for the user to prompt each professional responsibility.
+11. Retrieve before clarification: existing context in Notion, repositories, connected tool/account registries, and prior research must be checked before asking the user to restate goals, constraints, identities, decisions or integrations.
+12. Planning is evidence-driven, not date-driven. Every OPEN assumption must have a named owner, falsification method, required evidence, and scenario outcomes in `docs/ASSUMPTIONS-REGISTER.md`. Never silently resolve a policy question for the maintainer. Update the roadmap and register together when a gate or assumption changes.
+13. Relationship claims require canonical relation evidence. For GitHub issue/PR links, accept only an explicit timeline cross-reference event or maintainer-confirmed mapping; a relation never proves resolution or acceptance.
+14. Apply `docs/OPERATING-CHARTER.md` proactively. Discover relevant tools, APIs, MCPs, datasets, services, standards, and open-source options when they may materially improve an outcome; assess security, rights, cost, reliability, and fit, and never add or invoke them merely for decoration. Do not wait for the user to prompt each professional responsibility.
 
 ## Definition of done
 
