@@ -18,6 +18,7 @@ from project_intelligence.github_pulls import fetch_github_pull_requests, write_
 from project_intelligence.workplan import build_workplan, load_snapshot, write_workplan
 from project_intelligence.search import search_index
 from project_intelligence.snapshot_diff import compare_snapshots, write_snapshot_diff
+from project_intelligence.source_relations import fetch_explicit_relationships, write_relationship_report
 from project_intelligence.tasks import (
     generate_draft_tasks,
     load_task_set,
@@ -128,6 +129,17 @@ def _parser() -> argparse.ArgumentParser:
     diff_parser.add_argument("--json-output", type=Path, help="JSON comparison output path")
     diff_parser.add_argument("--markdown-output", type=Path, help="Markdown comparison report path")
 
+    relations_parser = subcommands.add_parser(
+        "github-relations",
+        help="audit explicit GitHub timeline cross-references without inferring issue/PR links",
+    )
+    relations_parser.add_argument("--issues", type=Path, help="public GitHub issue snapshot JSON")
+    relations_parser.add_argument("--pulls", type=Path, help="public GitHub pull-request snapshot JSON")
+    relations_parser.add_argument("--timeout", type=float, default=20.0, help="per-request timeout in seconds")
+    relations_parser.add_argument("--max-records", type=int, default=50, help="maximum snapshot records to inspect (1-500)")
+    relations_parser.add_argument("--json-output", type=Path, help="JSON relationship report path")
+    relations_parser.add_argument("--markdown-output", type=Path, help="Markdown relationship report path")
+
     ai_parser = subcommands.add_parser(
         "ai-review", help="optionally request a metadata-only review through OmniRoute Workbench"
     )
@@ -176,6 +188,62 @@ def main(argv: list[str] | None = None) -> int:
             print(f"JSON: {json_path.expanduser().resolve()}")
             print(f"Report: {markdown_path.expanduser().resolve()}")
             print("Read-only comparison. Absence does not imply closure, deletion, or completion.")
+            return 0
+
+        if args.command == "github-relations":
+            if args.issues is None and args.pulls is None:
+                raise ValueError("Supply at least one of --issues or --pulls")
+            issue_snapshot = load_snapshot(args.issues, "issues") if args.issues else None
+            pull_snapshot = load_snapshot(args.pulls, "pull_requests") if args.pulls else None
+            source_snapshots = [snapshot for snapshot in (issue_snapshot, pull_snapshot) if snapshot is not None]
+            repository = source_snapshots[0]["source"]["repository"]
+            if any(snapshot["source"]["repository"].casefold() != repository.casefold() for snapshot in source_snapshots):
+                raise ValueError("Issue and pull-request snapshots must refer to the same repository")
+
+            targets = []
+            for item in (issue_snapshot["issues"] if issue_snapshot else []):
+                if not isinstance(item, dict):
+                    raise ValueError("Issue snapshot contains a non-object record")
+                targets.append({
+                    "record_type": "issue",
+                    "number": item.get("number"),
+                    "title": item.get("title", ""),
+                })
+            for item in (pull_snapshot["pull_requests"] if pull_snapshot else []):
+                if not isinstance(item, dict):
+                    raise ValueError("Pull-request snapshot contains a non-object record")
+                targets.append({
+                    "record_type": "pull_request",
+                    "number": item.get("number"),
+                    "title": item.get("title", ""),
+                })
+
+            report = fetch_explicit_relationships(
+                repository, targets, timeout=args.timeout, max_records=args.max_records
+            )
+            report["input_snapshots"] = [
+                {
+                    "repository": snapshot["source"]["repository"],
+                    "endpoint": snapshot["source"].get("endpoint"),
+                    "query_state": snapshot["source"].get("query_state"),
+                    "fetched_at": snapshot["source"].get("fetched_at"),
+                    "record_count": len(snapshot["issues"] if "issues" in snapshot else snapshot["pull_requests"]),
+                }
+                for snapshot in source_snapshots
+            ]
+            json_path = args.json_output or Path(".project-intelligence/github-relations.json")
+            markdown_path = args.markdown_output or Path(".project-intelligence/github-relations.md")
+            write_relationship_report(report, json_path, format="json")
+            write_relationship_report(report, markdown_path, format="markdown")
+            summary = report["summary"]
+            print(
+                f"Audited {summary['targets_scanned']} timelines in {repository}: "
+                f"{summary['explicit_in_repository_relations']} explicit in-repository relationships, "
+                f"{summary['external_or_unverified_references']} external/unverified references."
+            )
+            print(f"JSON: {json_path.expanduser().resolve()}")
+            print(f"Report: {markdown_path.expanduser().resolve()}")
+            print("Read-only audit. No relation is inferred from title similarity; no source record was changed.")
             return 0
 
         if args.command == "ai-review":
