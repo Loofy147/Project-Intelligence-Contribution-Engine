@@ -16,7 +16,7 @@ The shared operating principles are:
 - Eliminate unnecessary requirements, redundant steps, and duplicate records before adding automation.
 - Make trust boundaries explicit across identity providers, GitHub connections, databases, application runtimes, MCP clients, tool permissions and repositories. Access in one boundary does not imply access in another.
 - Reuse only after checking the source revision, actual license, rights, security, maintenance, dependency burden, and compatibility.
-- Keep conversation text as a working interface. Put durable decisions, specifications, source evidence, work state, test results and handoffs in the appropriate canonical repository.
+- Keep conversation text as a working interface, not the only place where knowledge exists. Put portfolio objectives, priorities, operational work, cross-project decisions, research, risks, resources and change records in their existing canonical Notion records. Keep code, tests, implementation-specific architecture and CI evidence in the owning repository or provider record. Link the sources instead of mirroring whole records.
 - Make integrations, tools, APIs, MCPs and datasets earn their place by solving a demonstrated problem. Availability alone is not a reason to adopt them.
 
 ## System map
@@ -58,8 +58,14 @@ When a request spans more than one project:
 
 ## Primary context sources
 
+- [Autonomous Project Intelligence & Engineering Standard](https://app.notion.com/p/4004508c33af817fb47fef96a8a69d43) — canonical context-first execution procedure.
 - [Integrated Operations OS — Master Template](https://app.notion.com/p/3f84508c33af815a9a5dd587d3a46f04)
 - [Professional & Technical Collaboration Profile](https://app.notion.com/p/3ff4508c33af81a9aa47c4a3d5f920b4)
+- [Operating Guide — Principles, Data Rules & Reuse](https://app.notion.com/p/3f84508c33af819da661f3726ae407c6)
+- [Source Registers — Core & Research Databases](https://app.notion.com/p/3f84508c33af8164af31c59cc3517f5b)
+- [Performance — Objectives & Measures](https://app.notion.com/p/510814e858d34821971ab0b218239fae)
+- [Systems & Integrations register](https://app.notion.com/p/662f5c2bbf4e43b8875e899d7f6dbf4f)
+- [Discovery — Product Gaps & Opportunities](https://app.notion.com/p/d7ff44f9727742c39e86195c59614a76)
 - [HOS Change Signature v1 — Add-ons & Implementations](https://app.notion.com/p/3ff4508c33af81108658d24c4875ed68)
 - [ContribQuest & Contribution Network — Clean Baseline v1.0](https://app.notion.com/p/3f94508c33af81c9b11ceaca80f769d1)
 - [Cross-Conversation Handoff — ContribQuest Analytics, MCP & Release Readiness](https://app.notion.com/p/3fb4508c33af81938d63e4d1598678eb)
