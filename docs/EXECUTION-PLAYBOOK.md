@@ -1,0 +1,162 @@
+# Task Execution Playbook
+
+This is the canonical procedure for turning a request or tracked work item into a tested repository change. Follow it in order. Do not replace execution with another planning document.
+
+## 1. Choose the task source
+
+Apply these rules in order:
+
+1. **Direct user request:** implement the behavior or change the user actually requested.
+2. **Named issue, PR, or work-item ID:** use that exact record. Read its body/criteria and linked implementation; do not substitute a similarly worded item.
+3. **Existing repository-native registry:** use it only when the project manifest explicitly declares it and its status is on the allowlist. The registry stays authoritative.
+4. **Roadmap continuation with no named task:** choose the first unchecked, executable item in `docs/ROADMAP.md`, reading top to bottom by milestone and item order. Before implementation, check dependencies, current code, relevant test coverage, and whether a new decision is required.
+5. **No safe executable task:** do a focused inspection and identify the smallest missing fact or prerequisite. Do not invent tasks or report speculation as a confirmed defect.
+
+Never promote a heuristic draft, a model suggestion, or a roadmap hypothesis above an existing canonical issue/registry record. Do not create duplicate work items just to make the task look actionable.
+
+## 2. Establish the actual baseline
+
+From the repository root, inspect the state before editing:
+
+~~~bash
+git status --short
+git branch --show-current
+git log -1 --oneline
+git diff --stat
+~~~
+
+If a command cannot run because there is no local checkout or shell, state that limitation accurately. Do not imply that the remote repository was locally tested.
+
+Read the relevant docs and the implementation/tests, not just the README. Find:
+- the current code path for the behavior;
+- its input and output contract;
+- nearby tests and error paths;
+- relevant workflow configuration;
+- the canonical task's acceptance criteria;
+- any security/privacy boundary touched by the change.
+
+When a runnable checkout is available, capture baseline results before editing:
+
+~~~bash
+python --version
+python -m pip install -e ".[dev]"
+python -m pytest -q
+pie --help
+~~~
+
+The supported core runtime is Python 3.11+. Optional Workbench tests are separate; see [the Workbench guide](../integrations/omniroute-workbench/README.md).
+
+## 3. Convert the task into a small implementation contract
+
+Before editing, write down (in the issue/PR description or scratch notes):
+
+- **Observed problem:** cite a path, line, reproduction, failing test, or source record. Label assumptions as assumptions.
+- **Expected result:** describe observable behavior, not just the code to write.
+- **Acceptance checks:** make each condition independently testable.
+- **Scope:** list expected files/modules and explicit non-goals.
+- **Risk:** state whether secrets, network access, external writes, data formats, licenses, or migrations are involved.
+
+If the repository already supplies acceptance criteria, preserve them and add clarification rather than replacing them. Use [the work-item template](WORK-ITEM-TEMPLATE.md) for new issue descriptions; never create a second tracker when a canonical record already exists.
+
+## 4. Implement with the smallest correct change
+
+1. Trace the existing data flow and follow the repository map.
+2. Add a focused failing test for a behavior defect when practical.
+3. Make the minimum change that makes the expected behavior true.
+4. Preserve stable IDs, source pointers, digests, and schema/version compatibility unless the task explicitly requires a migration.
+5. Fail closed on malformed allowlists, unsafe paths, invalid model output, untrusted identifiers, or unavailable network data. Do not silently fabricate fallback records.
+6. Keep model recommendations advisory. They must not set task status or invoke external actions.
+7. Update documentation when interfaces, data formats, commands, trust boundaries, or limitations change.
+8. Do not add new dependencies, a service, persistence, or an integration just because it is convenient. Demonstrate the requirement first.
+
+## 5. Validate in layers
+
+Run the checks that match the change. Prefer the whole core suite; do not claim checks that were not run.
+
+### Core Python changes
+
+~~~bash
+python -m pytest -q
+python -m compileall -q src tests
+pie --help
+~~~
+
+If package metadata or entry points changed, also run:
+
+~~~bash
+python -m pip install -e ".[dev]"
+~~~
+
+Use the README's safe local smoke path when indexing/CLI behavior changes. Generated output belongs under `.project-intelligence/`, which is Git-ignored:
+
+~~~bash
+pie index . --output .project-intelligence/index.json
+pie search "authentication callback" --index .project-intelligence/index.json
+pie inventory . --output .project-intelligence/inventory.md
+pie tasks .
+pie verify-tasks .
+~~~
+
+These commands inspect this repository. Remember that an index contains copied text; do not commit it or share it without review.
+
+### OmniRoute Workbench changes
+
+Run the documented tests in `integrations/omniroute-workbench/` using Node.js 22 or newer:
+
+~~~bash
+npm test
+npm run check
+~~~
+
+Tests use a fake upstream and should not need live provider keys. Do not use real keys for unit tests. Check that listening ports remain loopback-only and that request/prompt/authorization data are not logged.
+
+### Documentation-only changes
+
+- Check every changed Markdown relative link against the actual repository paths.
+- Verify commands and filenames against the README, `pyproject.toml`, implementation, or workflow—not memory.
+- Check fenced code blocks and headings for clear, consistent Markdown.
+- Run a relevant CI workflow if available; otherwise report exactly what was checked manually.
+
+### Network/evaluation behavior
+
+GitHub snapshot and real-project evaluation workflows can require network access and are separate from unit tests. Run them only when relevant. A target project's successful indexing is not proof that its application is correct. Preserve target repositories as read-only.
+
+## 6. Review the change before declaring success
+
+Inspect the entire final diff and answer every question:
+
+- Does each changed line serve the requested task?
+- Did the tests prove the new or corrected behavior?
+- Are failure cases and malformed input handled?
+- Did the change expose source text, secrets, tokens, absolute paths, or private data?
+- Are external records still canonical and unmodified?
+- Do docs accurately distinguish observed facts, hypotheses, recommendations, and unverified behavior?
+- Are any TODOs, roadmap checkboxes, badges, version claims, or release notes being updated without evidence?
+- Did any generated output or environment file enter the diff?
+
+Do not mark a roadmap item complete merely because code exists or CI is green. The item's acceptance criteria must be met and the evidence recorded. Green unit tests do not substitute for required live acceptance or authorization tests.
+
+## 7. Branch, commit, and PR behavior
+
+- Preserve any pre-existing user changes; never reset, overwrite, or clean them away to obtain a tidy diff.
+- Prefer a focused branch and pull request for reviewable repository changes when repository access allows it. Do not force-push or rewrite shared history.
+- Use descriptive commit and PR titles. Summarize the problem, implementation, tests, limitations, and any migration or security implications.
+- Include only evidence actually observed. Link an issue only where the source explicitly identifies the relationship or a maintainer confirms it.
+- Do not close canonical issues, merge pull requests, publish a release, deploy, create funded bounties, or change external project state as an incidental side effect.
+
+## 8. Handoff so another model can continue without this conversation
+
+Update the task's canonical record where possible. For cross-session work, complete [the handoff template](SESSION-HANDOFF-TEMPLATE.md) with:
+- repository URL, branch, exact HEAD SHA, and date;
+- objective and canonical task source;
+- exact files changed and their roles;
+- commands executed and observed outcomes;
+- current CI URLs or explicit “not checked”;
+- decisions made, assumptions, blockers, and known risks;
+- one next action that can be executed without re-planning.
+
+Do not include credentials, raw environment files, private task payloads, or full copied project indexes in a handoff.
+
+## Stop and escalate only for these conditions
+
+Pause the consequential part of the task when it would require an unapproved external write, publishing/deployment/spend, irreversible deletion, a credential or privilege change, an unresolved licensing/rights decision, a destructive data migration, or a product decision that materially changes the requested behavior. Continue safe investigation, write tests, document the blocker, and identify the smallest decision needed. Do not use a blocker as an excuse to skip unrelated, reversible work.

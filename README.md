@@ -4,6 +4,17 @@ A local-first tool for understanding software projects and converting verified g
 
 The Python CLI indexes readable project files, ranks keyword search results, inventories common technology markers, imports explicitly configured work-item registries, snapshots public GitHub issues and pull requests, and creates an issue-first work plan. It does not modify scanned source repositories, change GitHub records, or create funded bounties.
 
+## Start here (including AI coding agents)
+
+- **Mandatory agent instructions:** [`AGENTS.md`](AGENTS.md)
+- **Do the task step by step:** [Execution playbook](docs/EXECUTION-PLAYBOOK.md)
+- **Find the correct code/tests/docs:** [Repository map](docs/REPOSITORY-MAP.md)
+- **Create well-defined work:** [Work-item template](docs/WORK-ITEM-TEMPLATE.md)
+- **Transfer work without losing state:** [Session handoff template](docs/SESSION-HANDOFF-TEMPLATE.md)
+- **Review checklist:** [Pull request template](.github/pull_request_template.md)
+
+Agents should inspect the current repository state, choose the canonical task source, implement the requested change, run the available checks, inspect the final diff, and report evidence. A plan alone is not completion when safe implementation is possible.
+
 ## Capabilities
 
 - Scan local projects with file-size limits and exclusions for common generated and secret-bearing paths.
@@ -31,7 +42,6 @@ python -m venv .venv
 # Activate the environment for your platform, then:
 python -m pip install -e ".[dev]"
 python -m pytest
-
 pie index . --output .project-intelligence/index.json
 pie search "authentication callback" --index .project-intelligence/index.json
 pie inventory . --output .project-intelligence/inventory.md
@@ -72,7 +82,7 @@ Only records in the named collection whose status is explicitly allowlisted are 
 
 The following example snapshots public issues and PRs without changing them, then creates a local work-plan report:
 
-~~~bash
+~~~
 mkdir -p .project-intelligence
 
 pie github-issues Loofy147/Contribution-bounties-centre- \
@@ -116,12 +126,11 @@ Replace `/path/to/local/contribquest-checkout` with a local checkout before runn
 
 The core Project Intelligence CLI does not require an AI service. For optional project-scoped model access, see the [OmniRoute Workbench integration](integrations/omniroute-workbench/README.md). It uses a separate [OmniRoute service](https://github.com/diegosouzapw/OmniRoute); review the integration guide's security limits before using it.
 
-
 ### Optional structured AI task review
 
 The optional **pie ai-review** command sends a bounded allowlist of task metadata to the [OmniRoute Workbench](integrations/omniroute-workbench/README.md); it deliberately excludes source excerpts and file contents. It requires a project-scoped Workbench key in the **PIE_AI_API_KEY** environment variable. The default endpoint is loopback at http://127.0.0.1:20129/v1; remote gateways require the explicit **--allow-remote** flag. The result is a separate advisory report and never changes task state.
 
-~~~bash
+~~~
 export PIE_AI_API_KEY='YOUR_PROJECT_WORKBENCH_KEY'
 pie ai-review --tasks .project-intelligence/tasks.json --output .project-intelligence/ai-review.json
 unset PIE_AI_API_KEY
@@ -131,13 +140,13 @@ See the [AI review gateway contract](docs/AI-REVIEW-GATEWAY.md) and [open-source
 
 ## Development
 
-~~~bash
+~~~
 python -m pip install -e ".[dev]"
 python -m pytest
 pie --help
 ~~~
 
-See [the architecture](docs/ARCHITECTURE.md), [the roadmap](docs/ROADMAP.md), [the manifest specification](docs/PROJECT-MANIFEST.md), and [contributing](CONTRIBUTING.md).
+See the [architecture](docs/ARCHITECTURE.md), the [roadmap](docs/ROADMAP.md), the [manifest specification](docs/PROJECT-MANIFEST.md), and [contributing](CONTRIBUTING.md).
 
 To evaluate public project snapshots, run the **Evaluate real projects** GitHub Actions workflow. It checks out targets without persisting target-repository write credentials and uploads per-project inventory, issue/PR snapshots, tasks, verification and work-plan reports as 14-day artifacts.
 
