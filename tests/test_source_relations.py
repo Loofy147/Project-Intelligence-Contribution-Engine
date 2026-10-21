@@ -207,3 +207,46 @@ def test_relationship_report_writes_json_and_markdown(tmp_path: Path, monkeypatc
     markdown = md_path.read_text(encoding="utf-8")
     assert "# Explicit GitHub relationship audit: example/repo" in markdown
     assert "No source record was changed." in markdown
+
+
+
+def test_cli_github_relations_reads_snapshot_and_writes_reports(tmp_path: Path, monkeypatch, capsys):
+    from project_intelligence.cli import main
+
+    issues = {
+        "schema_version": 1,
+        "source": {
+            "provider": "github",
+            "repository": "example/repo",
+            "endpoint": "https://api.github.com/repos/example/repo/issues",
+            "query_state": "open",
+            "fetched_at": "2026-10-21T00:00:00Z",
+        },
+        "issues": [{"number": 3, "title": "Target issue"}],
+    }
+    issue_path = tmp_path / "issues.json"
+    issue_path.write_text(json.dumps(issues), encoding="utf-8")
+    source = _source(
+        27, "Cross-referencing PR", "https://github.com/example/repo/pull/27",
+        "https://api.github.com/repos/example/repo", is_pr=True,
+    )
+    monkeypatch.setattr(
+        "project_intelligence.source_relations.urlopen",
+        lambda *_args, **_kwargs: FakeResponse([_event(source)]),
+    )
+    json_output, markdown_output = tmp_path / "reports" / "relations.json", tmp_path / "reports" / "relations.md"
+
+    exit_code = main([
+        "github-relations",
+        "--issues", str(issue_path),
+        "--json-output", str(json_output),
+        "--markdown-output", str(markdown_output),
+    ])
+
+    assert exit_code == 0
+    saved = json.loads(json_output.read_text(encoding="utf-8"))
+    assert saved["input_snapshots"][0]["query_state"] == "open"
+    assert saved["relationships"][0]["verification_state"] == "explicit_source_event_observed"
+    assert saved["relationships"][0]["completion_state"] == "unknown_not_inferred"
+    assert "Input snapshot coverage" in markdown_output.read_text(encoding="utf-8")
+    assert "No relation is inferred from title similarity" in capsys.readouterr().out
