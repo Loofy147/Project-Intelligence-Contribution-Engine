@@ -36,8 +36,8 @@ GATE-00 Current baseline (PASSED)
   │     ├── GATE-04 Human approval and closure protocol
   │     ├── GATE-05 Structured readiness parsing (also depends on GATE-02)
   │     └── GATE-06 AI review value experiment (evaluates A-004)
-  ├── GATE-02 Source snapshot comparison and freshness (IN_PROGRESS)
-  │     └── GATE-03 Explicit issue/PR relationships (evaluates A-005)
+  ├── GATE-02 Source snapshot comparison and freshness (PASSED)
+  │     └── GATE-03 Explicit issue/PR relationships (READY; evaluates A-005)
   ├── GATE-11 Keyword-search quality (BLOCKED by the policy target in A-003)
   ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
   └── GATE-08 Persistence decision (DEFERRED until a concrete requirement is demonstrated; monitors A-007)
@@ -83,9 +83,10 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-02 — Compare source snapshots and expose freshness changes
 
-- **State:** IN_PROGRESS
+- **State:** PASSED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00
+- **Evidence:** Core test workflow, including CLI help and Python 3.11/3.12, passed on [commit `017556c5`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39659054424); OmniRoute Workbench checks passed on the same commit ([workflow](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39659054383)). The CI-passing commit contains the complete comparator implementation and CLI integration; the later change that records this state is documentation-only.
 - **Purpose:** Make source changes visible across consecutive GitHub issue/PR snapshots without pretending that absence from a filtered query means closure, deletion, or completion.
 - **Implementation boundary:** Read-only comparison of same-repository, schema-valid snapshots. Preserve the canonical issue/PR IDs and URLs. Report observed changes such as state, title, labels, updated timestamp, and PR head SHA. When a filtered snapshot omits a prior record, say that it is absent from the query; do not label it closed. Report snapshot coverage.
 - **Exit criteria:**
@@ -95,11 +96,12 @@ The graph is authoritative; the display above is a navigation aid. Where depende
   - Include unit tests for stable records, state changes, updated timestamps, PR head changes, and incomplete query coverage.
   - Expose a documented read-only CLI command and examples.
   - Core tests and CLI help pass; output clearly identifies what it does not prove.
-- **Next gate:** On passing, GATE-03 can use explicit relation evidence and GATE-04 can implement a lifecycle that prevents stale records from being marked complete.
+- **Gate result:** All listed exit criteria passed on the cited CI head. Snapshot comparison is metadata-only; it does not determine issue/PR relationships or completion.
+- **Next READY gate:** GATE-03 audits whether explicit, canonical relationship evidence is available.
 
 ### GATE-03 — Link issues and pull requests only with explicit evidence
 
-- **State:** BLOCKED
+- **State:** READY
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-02
 - **Assumption evaluated by this gate:** [A-005](ASSUMPTIONS-REGISTER.md#a-005--explicit-evidence-is-available-to-link-related-github-issues-and-pull-requests). It is a test objective, not a prerequisite for running the audit.
