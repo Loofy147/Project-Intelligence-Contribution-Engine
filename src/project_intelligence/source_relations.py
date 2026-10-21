@@ -94,11 +94,9 @@ def _event_repo_scope(source_issue: dict[str, Any], repository: str) -> tuple[st
         return "external_repository", repository_url
 
     html_url = source_issue.get("html_url")
-    if isinstance(html_url, str) and html_url.casefold().startswith(
-        f"https://github.com/{repository}/".casefold()
-    ):
-        return "same_repository", None
     if isinstance(html_url, str) and html_url.startswith("https://"):
+        # URL appearance is useful context, but without the API's canonical
+        # repository_url we do not assert that the source belongs to this repo.
         return "external_or_unverified_repository", None
     return "unknown_repository", None
 
