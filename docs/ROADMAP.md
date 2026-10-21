@@ -39,7 +39,7 @@ GATE-00 Current baseline (PASSED)
   ├── GATE-02 Source snapshot comparison and freshness (PASSED)
   │     └── GATE-03 Explicit issue/PR relationships (PASSED; evaluates A-005)
   └── GATE-12 Planning-contract validation in CI (PASSED)
-  └── GATE-13 Professional operating charter adoption (IN_PROGRESS)
+  └── GATE-13 Professional operating charter adoption (PASSED)
   ├── GATE-11 Keyword-search quality (BLOCKED by the policy target in A-003)
   ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
   └── GATE-08 Persistence decision (DEFERRED until a concrete requirement is demonstrated; monitors A-007)
@@ -210,11 +210,12 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-13 — Adopt the professional operating charter across work entry points
 
-- **State:** IN_PROGRESS
+- **State:** PASSED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00 and GATE-12
 - **Purpose:** Make professional completeness the default across task interpretation, execution, research, tool use, documentation, contribution guidance, and agent behavior. The user should provide direction and constraints, not enumerate routine responsibilities.
 - **Exit criteria:** The charter is linked from mandatory agent instructions, README, execution playbook, repository map and contribution guidance; the work-item and PR templates prompt relevant outcome/coverage checks; authoritative standards are linked with version/freshness caveats; automated planning-contract validation and the core test/CLI workflows pass.
+- **Evidence:** Core test suite passed at commit [`f8909079`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/commit/f8909079108023f210d3ab09a9200707856eaf0d) in [workflow run 39664066703](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39664066703); OmniRoute Workbench checks passed on the same commit in [run 39664066704](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39664066704). The final validation included the charter, portfolio map, agent/playbook entry points, contributor guidance, templates, and handoff updates.
 - **Authority boundary:** The charter does not claim background execution, automatic access to every integration, or blanket permission for external side effects. Use only connected capabilities and authorized actions; configure scheduled work explicitly.
 - **Next:** Apply the charter to future gates and project work, improving it when evidence shows a missing control rather than creating a new duplicate checklist.
 
