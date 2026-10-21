@@ -32,24 +32,22 @@ A gate is a testable capability or decision boundary. Each gate declares an owne
 
 ```text
 GATE-00 Current baseline (PASSED)
-  ├── GATE-01 Heuristic and retrieval quality (BLOCKED by A-001/A-002/A-003)
+  ├── GATE-01 Heuristic task-candidate quality (BLOCKED by the policy target in A-001; evaluates A-002)
   │     ├── GATE-04 Human approval and closure protocol
-  │     ├── GATE-05 Structured readiness and project-specific analysis (also depends on GATE-02)
-  │     └── GATE-06 AI review value experiment
+  │     ├── GATE-05 Structured readiness parsing (also depends on GATE-02)
+  │     └── GATE-06 AI review value experiment (evaluates A-004)
   ├── GATE-02 Source snapshot comparison and freshness (IN_PROGRESS)
-  │     ├── GATE-03 Explicit issue/PR relationships (also depends on A-005)
-  │     ├── GATE-04 Human approval and closure protocol (also depends on GATE-01)
-  │     └── GATE-05 Structured readiness and project-specific analysis
-  ├── GATE-07 Private-repository access decision (BLOCKED by A-006; conditional)
-  └── GATE-08 Persistence decision (BLOCKED by A-007; conditional)
+  │     └── GATE-03 Explicit issue/PR relationships (evaluates A-005)
+  ├── GATE-11 Keyword-search quality (BLOCKED by the policy target in A-003)
+  ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
+  └── GATE-08 Persistence decision (DEFERRED until a concrete requirement is demonstrated; monitors A-007)
 
 GATE-03 + GATE-04 + applicable access decision
   └── GATE-09 ContribQuest read-only workflow integration
-        └── GATE-10 External writes (BLOCKED; separate approval and safety gate)
+        └── GATE-10 External writes (DEFERRED; separate approval and safety gate)
 
-GATE-01 + A-004
-  └── GATE-06 AI review value experiment
-        └── Only if value is proven: durable cost/budget control design
+GATE-01 and GATE-11 are separate evidence gates. GATE-06 runs the A-004 experiment only after GATE-01 passes.
+GATE-08 is reopened only when a reproducible persistence requirement exists.
 ```
 
 The graph is authoritative; the display above is a navigation aid. Where dependency statements in a gate disagree with this graphic, fix the disagreement before selecting work.
@@ -70,9 +68,11 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 - **State:** BLOCKED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00
-- **Assumptions:** [A-001](ASSUMPTIONS-REGISTER.md#a-001--minimum-quality-required-for-heuristic-task-recommendations), [A-002](ASSUMPTIONS-REGISTER.md#a-002--benchmark-corpus-generalizes-beyond-the-current-smoke-test-projects), [A-003](ASSUMPTIONS-REGISTER.md#a-003--keyword-search-meets-a-useful-quality-bar-without-semantic-retrieval)
+- **Policy decision blocking execution:** [A-001](ASSUMPTIONS-REGISTER.md#a-001--minimum-quality-required-for-heuristic-task-recommendations).
+- **Empirical assumption evaluated inside this gate:** [A-002](ASSUMPTIONS-REGISTER.md#a-002--benchmark-corpus-generalizes-beyond-the-current-smoke-test-projects).
+- **Separate retrieval gate:** [A-003](ASSUMPTIONS-REGISTER.md#a-003--keyword-search-meets-a-useful-quality-bar-without-semantic-retrieval) is handled by GATE-11 and does not block the heuristic benchmark.
 - **Purpose:** Distinguish reliable observed candidates from noisy inventory hypotheses; determine whether keyword ranking satisfies the intended discovery task before changing retrieval architecture.
-- **Entry conditions:** Owner has frozen the heuristic precision acceptance target and the search quality measure before scoring; benchmark labels and sampling rules are defined; benchmark fixtures cover positive and negative cases and source types.
+- **Entry conditions:** Owner has frozen the heuristic precision acceptance target before scoring; benchmark labels and sampling rules are defined; benchmark fixtures cover positive and negative cases and source types.
 - **Exit evidence:** Versioned benchmark corpus and label rules; reproducible command; machine-readable precision/recall and search metrics; per-repository/per-kind results; false-positive examples; held-out test; explicit decision.
 - **Scenario branches:**
   - Target met and corpus coverage adequate → pass only for the measured envelope; add failed cases as regression fixtures.
@@ -102,7 +102,7 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 - **State:** BLOCKED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-02
-- **Assumptions:** [A-005](ASSUMPTIONS-REGISTER.md#a-005--explicit-evidence-is-available-to-link-related-github-issues-and-pull-requests)
+- **Assumption evaluated by this gate:** [A-005](ASSUMPTIONS-REGISTER.md#a-005--explicit-evidence-is-available-to-link-related-github-issues-and-pull-requests). It is a test objective, not a prerequisite for running the audit.
 - **Purpose:** Correlate source records only where GitHub provides a canonical relationship or the maintainer records an explicit mapping.
 - **Exit criteria:** Relationship type, source ID, URL, evidence basis, and verification state are preserved. Tests prove title similarity alone cannot create a link. A missing relation remains “unknown,” not “unrelated” or “resolved.”
 - **Scenario branches:** If explicit references are common, implement only evidenced relation types. If sparse, preserve separate lists and use maintainer-confirmed mappings only. If inconclusive, do not add automatic linking.
@@ -121,7 +121,7 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 - **State:** BLOCKED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-01 and GATE-02
-- **Assumptions:** [A-008](ASSUMPTIONS-REGISTER.md#a-008--generic-structured-readiness-parsing-is-preferable-to-per-project-rules)
+- **Assumption evaluated by this gate:** [A-008](ASSUMPTIONS-REGISTER.md#a-008--generic-structured-readiness-parsing-is-preferable-to-per-project-rules).
 - **Purpose:** Extract readiness gates, dependencies, deferred decisions, and assumptions from documentation-heavy projects without treating every checkbox or prose statement as active work.
 - **Exit criteria:** Small labelled corpus, source pointers, held-out evaluation, stale-evidence behavior, and explicit opt-in paths. Any parsed item remains review-required and linked to its source.
 - **Scenario branches:** If stable patterns recur, add a narrow opt-in parser. If formats differ, prefer repository-native registries/adapters. If evidence is weak, keep manual review rather than building a universal crawler.
@@ -131,30 +131,32 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 - **State:** BLOCKED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-01
-- **Assumptions:** [A-004](ASSUMPTIONS-REGISTER.md#a-004--optional-ai-review-adds-enough-value-to-justify-its-maintenance-and-cost)
+- **Assumption evaluated by this gate:** [A-004](ASSUMPTIONS-REGISTER.md#a-004--optional-ai-review-adds-enough-value-to-justify-its-maintenance-and-cost).
 - **Purpose:** Compare model-assisted recommendations with the same tasks reviewed without AI.
 - **Exit criteria:** Frozen model/configuration, blinded paired task set, human adjudication, quality/effort comparison, latency and observed cost where available, and an explicit owner decision.
 - **Scenario branches:** If incremental value is proven, keep AI optional and separately design durable cost controls before making budget guarantees. If not proven, keep experimental or de-emphasize it. If inconclusive, do not add model dependencies or expand paid routing.
 
 ### GATE-07 — Decide whether private-repository access is actually required
 
-- **State:** BLOCKED (conditional)
+- **State:** BLOCKED (scope decision required)
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00
-- **Assumptions:** [A-006](ASSUMPTIONS-REGISTER.md#a-006--private-repository-support-is-required-for-the-intended-evaluation-scope)
+- **Assumption to resolve:** [A-006](ASSUMPTIONS-REGISTER.md#a-006--private-repository-support-is-required-for-the-intended-evaluation-scope).
+- **Blocking input:** The owner must confirm the target-project scope against which “required” will be judged. The existence of a future possible private use case is not enough.
 - **Purpose:** Avoid adding credential and privacy risks without a required use case.
 - **Exit criteria:** Named required target, access need, sanitized fixture alternative, and owner decision.
 - **Scenario branches:** If private access is required, design least privilege, key storage, revocation, redaction, and tests before implementation. If public/sanitized scope is sufficient, explicitly defer auth and keep public read-only behavior.
 
 ### GATE-08 — Decide whether local JSON persistence is insufficient
 
-- **State:** BLOCKED (conditional)
+- **State:** DEFERRED until a concrete requirement is demonstrated
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00
-- **Assumptions:** [A-007](ASSUMPTIONS-REGISTER.md#a-007--local-json-persistence-is-insufficient-for-a-demonstrated-requirement)
+- **Assumption to monitor:** [A-007](ASSUMPTIONS-REGISTER.md#a-007--local-json-persistence-is-insufficient-for-a-demonstrated-requirement).
 - **Purpose:** Preserve the local-first dependency-light core unless a concrete, reproducible requirement disproves the current approach.
+- **Reopen condition:** A named use case reproduces a concurrency, multi-user, audit durability, cross-machine, size, or latency requirement that local files cannot safely satisfy.
 - **Exit criteria:** Reproducible failure, explicit requirement, evaluation of a simpler file-based fix, and an architecture decision record.
-- **Scenario branches:** If a real persistence gap is proven, design migration, backup, recovery, and data ownership before choosing storage. If not, retain local JSON. No database is added on speculation.
+- **Scenario branches:** If a real persistence gap is proven, design migration, backup, recovery, and data ownership before choosing storage. If no gap can be reproduced for the intended use case, retain local JSON. No database is added on speculation.
 
 ### GATE-09 — Integrate with ContribQuest as a read-only, source-linked workflow
 
@@ -174,6 +176,20 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 - **Required safeguards:** Least-privilege scopes, target/repository allowlist, human-readable preview, explicit confirmation, idempotency keys, audit evidence, failure/rollback behavior, secret handling, and rejection tests for unauthorized operations.
 - **Exit criteria:** Security contract and negative tests pass; dry-run evidence demonstrates the exact proposed effect before any write; external acceptance tests prove correct scoped behavior. No part of this gate is implied by passing core tests.
 - **Scenario branches:** If no necessary write use case exists, remain DEFERRED. If approved, design/test a narrow write operation separately; never enable generic repo automation by default.
+
+
+### GATE-11 — Measure keyword-search quality before changing retrieval architecture
+
+- **State:** BLOCKED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-00
+- **Policy decision blocking execution:** [A-003](ASSUMPTIONS-REGISTER.md#a-003--keyword-search-meets-a-useful-quality-bar-without-semantic-retrieval). Freeze the minimum acceptable query-quality result and the gold-label rules before inspecting the scored results.
+- **Purpose:** Determine whether the current explainable keyword ranker is sufficient for intended repository-discovery tasks.
+- **Exit evidence:** Query-to-relevant-document labels, a reproducible evaluation command, ranking results, per-query failures, defined quality metrics, and an owner decision.
+- **Scenario branches:**
+  - `KEYWORD_BAR_MET` → keep the dependency-light ranker; do not add embeddings or a new retrieval service.
+  - `KEYWORD_BAR_MISSED` → improve tokenization/ranking and repeat the same evaluation; only study semantic retrieval if a material measured gap remains.
+  - `INCONCLUSIVE` → add representative queries and keep the retrieval architecture unchanged.
 
 ## Capability baseline already established
 
