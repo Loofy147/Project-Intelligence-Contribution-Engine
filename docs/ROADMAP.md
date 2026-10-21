@@ -57,6 +57,15 @@
 - [ ] Keep XP/bounty status downstream of verified completion.
 - [ ] Keep all cross-repository writes disabled until permission scopes, preview, explicit confirmation, idempotency and rollback are implemented and tested.
 
+
+## M6 — Optional AI review and reuse governance
+
+- [x] Maintain a dated, license-scoped open-source reuse catalog with source links and explicit adoption decisions.
+- [x] Add an opt-in OmniRoute adapter that transmits bounded task metadata rather than source files.
+- [x] Validate model responses and keep recommendations separate from task status and external actions.
+- [ ] Add labelled benchmark data and measure task-review precision/recall against human adjudication.
+- [ ] Add durable token/cost budgets and usage accounting before describing the gateway as a spending-control boundary.
+
 ## Release gate
 
 Do not mark a milestone complete without reproducible commands, CI evidence, known limitations and links to code/results. Green inventory CI alone does not establish correctness of the target application or prove a reported issue is still unresolved.

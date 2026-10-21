@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "research_date": "2026-10-21",
+  "policy": {
+    "accepted_source_licenses": [
+      "MIT",
+      "Apache-2.0"
+    ],
+    "copied_source_requires_exact_file_path_and_notice": true,
+    "top_level_license_is_not_assumed_to_cover_all_paths": true,
+    "no_unknown_or_mixed_license_source_copied_without_review": true
+  },
+  "components": [
+    {
+      "id": "omniroute",
+      "repository_url": "https://github.com/diegosouzapw/OmniRoute",
+      "license": "MIT",
+      "license_status": "verified-permissive",
+      "adoption_status": "selected-runtime",
+      "reuse_mode": "separate-service",
+      "patterns": [
+        "multi-provider-routing",
+        "task/model-aliases",
+        "fallbacks",
+        "guardrails",
+        "MCP-A2A"
+      ],
+      "rationale": "Existing Workbench uses its OpenAI-compatible API; keep upstream source separate.",
+      "evidence_urls": [
+        "https://github.com/diegosouzapw/OmniRoute/blob/release/v3.8.52/LICENSE",
+        "https://github.com/diegosouzapw/OmniRoute/blob/release/v3.8.52/SECURITY.md",
+        "https://github.com/diegosouzapw/OmniRoute/releases"
+      ]
+    },
+    {
+      "id": "bifrost",
+      "repository_url": "https://github.com/boelabs/bifrost",
+      "license": "MIT",
+      "license_status": "verified-permissive",
+      "adoption_status": "patterns-only",
+      "reuse_mode": "design-reference",
+      "patterns": [
+        "virtual-keys",
+        "per-key-scopes",
+        "budgets",
+        "cost-accounting",
+        "rate-limits",
+        "OpenTelemetry"
+      ],
+      "rationale": "Apply missing budget/accounting patterns to the single existing gateway rather than deploying a second one.",
+      "evidence_urls": [
+        "https://github.com/boelabs/bifrost",
+        "https://github.com/boelabs/bifrost/blob/main/LICENSE"
+      ]
+    },
+    {
+      "id": "helicone-ai-gateway",
+      "repository_url": "https://github.com/Helicone/ai-gateway",
+      "license": "Apache-2.0",
+      "license_status": "verified-permissive",
+      "adoption_status": "patterns-only",
+      "reuse_mode": "design-reference",
+      "patterns": [
+        "latency-and-cost-routing",
+        "rate-limits",
+        "budget-controls",
+        "OpenTelemetry"
+      ],
+      "rationale": "Useful operations reference; avoid redundant routing layer.",
+      "evidence_urls": [
+        "https://github.com/Helicone/ai-gateway",
+        "https://github.com/Helicone/ai-gateway/blob/main/Cargo.toml"
+      ]
+    },
+    {
+      "id": "aider",
+      "repository_url": "https://github.com/Aider-AI/aider",
+      "license": "Apache-2.0",
+      "license_status": "verified-permissive",
+      "adoption_status": "patterns-only",
+      "reuse_mode": "design-reference",
+      "patterns": [
+        "repository-map",
+        "targeted-context",
+        "git-diff-review",
+        "test-after-edit"
+      ],
+      "rationale": "Use concise codebase context and reproducible validation; do not embed the full application.",
+      "evidence_urls": [
+        "https://github.com/Aider-AI/aider/blob/main/LICENSE.txt",
+        "https://github.com/Aider-AI/aider/blob/main/aider/website/docs/repomap.md"
+      ]
+    },
+    {
+      "id": "swe-agent",
+      "repository_url": "https://github.com/SWE-agent/SWE-agent",
+      "license": "MIT",
+      "license_status": "verified-permissive",
+      "adoption_status": "patterns-only",
+      "reuse_mode": "design-reference",
+      "patterns": [
+        "bounded-agent-computer-interface",
+        "syntax-validation-before-edit",
+        "clear-tool-results"
+      ],
+      "rationale": "Keep future computer actions narrow and observable; no autonomous shell actions in current engine.",
+      "evidence_urls": [
+        "https://github.com/SWE-agent/SWE-agent/blob/main/LICENSE",
+        "https://github.com/SWE-agent/SWE-agent/blob/main/docs/background/aci.md"
+      ]
+    },
+    {
+      "id": "openhands",
+      "repository_url": "https://github.com/OpenHands/OpenHands",
+      "license": "MIT",
+      "license_status": "verified-permissive",
+      "adoption_status": "patterns-only",
+      "reuse_mode": "design-reference",
+      "patterns": [
+        "isolated-execution-runtime",
+        "approval-boundary"
+      ],
+      "rationale": "Execution stays outside the read-only scanner and requires a future sandbox/approval layer.",
+      "evidence_urls": [
+        "https://github.com/OpenHands/OpenHands/blob/main/LICENSE",
+        "https://github.com/OpenHands/OpenHands"
+      ]
+    },
+    {
+      "id": "pydantic-ai",
+      "repository_url": "https://github.com/pydantic/pydantic-ai",
+      "license": "MIT",
+      "license_status": "verified-permissive",
+      "adoption_status": "patterns-only",
+      "reuse_mode": "design-reference",
+      "patterns": [
+        "structured-output",
+        "dependency-boundaries",
+        "evaluation-datasets",
+        "retry-layer-separation"
+      ],
+      "rationale": "Reuse schema validation and evaluation principles without adding a runtime dependency.",
+      "evidence_urls": [
+        "https://github.com/pydantic/pydantic-ai/blob/main/LICENSE",
+        "https://github.com/pydantic/pydantic-ai/blob/main/docs/output.md",
+        "https://github.com/pydantic/pydantic-ai/blob/main/docs/evals.md"
+      ]
+    },
+    {
+      "id": "dspy",
+      "repository_url": "https://github.com/stanfordnlp/dspy",
+      "license": "MIT",
+      "license_status": "verified-permissive",
+      "adoption_status": "patterns-only",
+      "reuse_mode": "design-reference",
+      "patterns": [
+        "dataset-backed-evaluation",
+        "measured-prompt-improvement"
+      ],
+      "rationale": "Use after we have labelled examples and baseline precision/recall measurements.",
+      "evidence_urls": [
+        "https://github.com/stanfordnlp/dspy",
+        "https://github.com/stanfordnlp/dspy/blob/main/LICENSE"
+      ]
+    },
+    {
+      "id": "continue",
+      "repository_url": "https://github.com/continuedev/continue",
+      "license": "Apache-2.0",
+      "license_status": "verified-permissive",
+      "adoption_status": "archived-reference",
+      "reuse_mode": "design-reference",
+      "patterns": [
+        "content-addressed-indexing",
+        "reuse-by-content-hash"
+      ],
+      "rationale": "Repository states it is read-only/no longer actively maintained; no runtime dependency.",
+      "evidence_urls": [
+        "https://github.com/continuedev/continue/blob/main/LICENSE",
+        "https://github.com/continuedev/continue/blob/main/core/indexing/README.md"
+      ]
+    },
+    {
+      "id": "litellm",
+      "repository_url": "https://github.com/BerriAI/litellm",
+      "license": "MIT",
+      "license_status": "scoped-license-hold",
+      "adoption_status": "hold",
+      "reuse_mode": "no-copy-no-runtime-dependency",
+      "patterns": [
+        "provider-adapters",
+        "budgets",
+        "fallbacks"
+      ],
+      "rationale": "Enterprise subtree has a separate license; contemporaneous security reports require independent validation against official advisories and patched releases.",
+      "evidence_urls": [
+        "https://github.com/BerriAI/litellm/blob/main/LICENSE",
+        "https://docs.litellm.ai/docs/proxy/users",
+        "https://www.itpro.com/security/cyber-attacks/litellm-flaws-allow-full-admin-control-and-api-key-theft"
+      ]
+    }
+  ]
+}
