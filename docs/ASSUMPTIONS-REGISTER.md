@@ -77,7 +77,8 @@ This is the canonical register for unresolved assumptions and questions that aff
 
 ### A-005 — Explicit evidence is available to link related GitHub issues and pull requests
 
-- **Status:** SUPPORTED (scope-limited to GitHub timeline cross-reference events)
+- **Status:** SUPPORTED
+- **Scope limitation:** Evidence supports the use of explicit GitHub timeline cross-reference events only; it does not establish that all references are captured or that a reference indicates completion.
 - **Owner:** Loofy147 (repository maintainer)
 - **Question/claim:** Can issue/PR relationships be represented reliably from explicit GitHub cross-references or maintainer-confirmed mappings, without guessing from text similarity?
 - **Why it matters:** False links can cause an open issue to be incorrectly treated as solved by a draft, unmerged, or unrelated PR.
