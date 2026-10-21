@@ -77,16 +77,14 @@ This is the canonical register for unresolved assumptions and questions that aff
 
 ### A-005 — Explicit evidence is available to link related GitHub issues and pull requests
 
-- **Status:** OPEN
+- **Status:** SUPPORTED (scope-limited to GitHub timeline cross-reference events)
 - **Owner:** Loofy147 (repository maintainer)
 - **Question/claim:** Can issue/PR relationships be represented reliably from explicit GitHub cross-references or maintainer-confirmed mappings, without guessing from text similarity?
 - **Why it matters:** False links can cause an open issue to be incorrectly treated as solved by a draft, unmerged, or unrelated PR.
-- **Falsification method:** Audit a sample of candidate relationships using authoritative GitHub cross-reference metadata or explicit maintainer mapping. Treat absence of such evidence as a negative result for automatic linking. The claim is falsified for any proposed automatic linker that emits a relationship unsupported by a canonical reference or recorded maintainer decision.
+- **Falsification method:** Continue auditing a sample of candidate relationships using authoritative GitHub cross-reference metadata or explicit maintainer mapping. This assumption is falsified for any proposed linker that emits a relationship unsupported by a canonical reference or recorded maintainer decision. Reopen this entry if a source event cannot be mapped to an exact canonical source/target or if external references are classified as internal.
 - **Evidence required:** Source IDs/URLs, type of relationship evidence, sampled false-link audit, and tests that reject title-only matches.
-- **Scenario selection:**
-  - `EXPLICIT_RELATIONS_AVAILABLE` → implement only the verified relationship types and preserve provenance.
-  - `EXPLICIT_RELATIONS_SPARSE` → keep issue and PR records separate; allow a reviewed mapping only when a maintainer provides it.
-  - `INCONCLUSIVE` → no automatic relationship inference.
+- **Evidence recorded:** GitHub timeline events record PR #27 as a cross-reference on [issue #3](https://github.com/Loofy147/Contribution-bounties-centre-/issues/3) and [issue #7](https://github.com/Loofy147/Contribution-bounties-centre-/issues/7). The [issue #21 timeline](https://api.github.com/repos/Loofy147/Contribution-bounties-centre-/issues/21/timeline) contained a separate external bot reference, which remains out of the internal relationship set. The relationship-audit tests and CLI integration passed with the main suite on commit [`1c5b0e37`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39660428573).
+- **Scenario selected:** `EXPLICIT_RELATIONS_AVAILABLE` → implement only actual GitHub `cross-referenced` timeline events with grounded source/target IDs, URLs, event evidence, and repository identity. Keep external/unverified references separate. An explicit reference does not prove resolution or completion; a missing event does not prove no relationship exists.
 
 ### A-006 — Private-repository support is required for the intended evaluation scope
 
