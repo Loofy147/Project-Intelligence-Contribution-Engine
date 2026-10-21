@@ -7,7 +7,7 @@ This file is the quick navigation map. Read the linked source docs for full cont
 | Path | Purpose | Read when |
 |---|---|---|
 | `AGENTS.md` | Mandatory rules for AI/coding agents | Before every task |
-| `docs/OPERATING-CHARTER.md` | Cross-cutting professional responsibilities, research, evidence, integrations, authority and definition of done | Scoping any non-trivial task or reviewing quality |
+| `docs/OPERATING-CHARTER.md` | PIE-specific adapter linking to the canonical Notion operating standard and stating this repository's trust/authority limits | Starting work in PIE or reviewing local constraints |
 | `docs/PORTFOLIO-CONTEXT.md` | Related system roles, canonical sources, portfolio alignment and cross-project authority boundaries | Work that crosses projects or integrations |
 | Existing Notion Integrated Operations OS | Goals, initiative/work records, decisions, risk/evidence, asset/provider integration registers, project handoffs and HOS change signatures | Retrieve context and authorization boundaries before clarification or cross-project work; do not duplicate canonical records |
 | `README.md` | Product boundary, installation, CLI examples | Starting work or changing a public workflow |
