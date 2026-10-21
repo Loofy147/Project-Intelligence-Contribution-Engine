@@ -1,5 +1,9 @@
 # Architecture
 
+## Operating standard
+
+All design and implementation work follows the [Professional Operating Charter](OPERATING-CHARTER.md). The architecture described here is the current implementation; the charter defines the broader product, business, security, data, research, operations, integration and organizational questions to assess when expanding it. Do not mistake a capability inventory or optional integration for a requirement to adopt it.
+
 ## Current components
 
 - **Indexer**: discovers eligible text files, applies exclusions and size limits, and emits a versioned local JSON index.
