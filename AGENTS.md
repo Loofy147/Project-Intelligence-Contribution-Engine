@@ -27,7 +27,7 @@ Do not ask the user to repeat information already available in the repository or
 - `tests/`: behavior and regression tests.
 - `docs/OPERATING-CHARTER.md`: default professional operating responsibilities, research, evidence, authority, and definition of done.
 - `docs/ARCHITECTURE.md`: architecture, data flow, trust boundaries, and extension policy.
-- `docs/ROADMAP.md`: milestone state and open work; preserve its evidence-based completion rules.
+- `docs/ROADMAP.md`: dependency-gated scenario graph; preserve its evidence-based completion rules and never substitute dates for dependencies.
 - `docs/PROJECT-MANIFEST.md`: project manifest and explicit planning-source allowlists.
 - `docs/AI-REVIEW-GATEWAY.md`: optional model-review data contract and safety limits.
 - `docs/REAL-PROJECT-EVALUATION.md`: dated evaluation evidence; check current workflow runs before treating it as current.
