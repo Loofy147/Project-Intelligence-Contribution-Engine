@@ -11,11 +11,11 @@ Project Intelligence & Contribution Engine (PIE) is a local-first Python CLI tha
 ## Mandatory startup sequence
 
 1. Read this file and [README.md](README.md).
-2. Read [docs/EXECUTION-PLAYBOOK.md](docs/EXECUTION-PLAYBOOK.md) and [docs/REPOSITORY-MAP.md](docs/REPOSITORY-MAP.md).
+2. Read [docs/EXECUTION-PLAYBOOK.md](docs/EXECUTION-PLAYBOOK.md), [docs/REPOSITORY-MAP.md](docs/REPOSITORY-MAP.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ASSUMPTIONS-REGISTER.md](docs/ASSUMPTIONS-REGISTER.md).
 3. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) plus the relevant feature document before changing behavior.
 4. Inspect the actual working state: current branch, HEAD, uncommitted changes, target files, tests, and current CI where accessible. Never assume a previous conversation's state is current.
 5. Run the baseline checks when a working checkout and execution environment are available. Record failures before changing code so existing failures are not misreported as regressions.
-6. Find the canonical task and its acceptance criteria. If no task is supplied and the user asks to continue implementation, use the deterministic selection rule in the execution playbook.
+6. Find the canonical task and its acceptance criteria. If no task is supplied and the user asks to continue implementation, select a READY roadmap gate using the dependency and scenario rules; never select an item merely because it appears first in a document.
 
 Do not ask the user to repeat information already available in the repository or current task. Make reasonable, reversible choices and proceed. Ask a question only when a missing decision would change security, external authority, cost, data loss, licensing rights, or the required user-visible behavior and the repository cannot answer it.
 
@@ -45,6 +45,7 @@ Do not ask the user to repeat information already available in the repository or
 8. **Test observable behavior.** Add or update focused tests for behavior changes. Do not weaken tests to get a green run.
 9. **Keep docs honest.** Update docs when commands, interfaces, schemas, trust boundaries, or supported behavior changes. Never report tests, CI, deployments, or external state as verified unless the result was actually observed.
 10. **Minimize scope.** Do not reformat or refactor unrelated code. Do not delete existing files or rewrite history to simplify a task.
+11. Planning is evidence-driven, not date-driven. Every OPEN assumption must have a named owner, falsification method, required evidence, and scenario outcomes in `docs/ASSUMPTIONS-REGISTER.md`. Never silently resolve a policy question for the maintainer. Update the roadmap and register together when a gate or assumption changes.
 
 ## Definition of done
 
@@ -56,7 +57,7 @@ A change is complete only when all applicable items are satisfied:
 - [ ] The full available test suite was run, or the exact blocker is recorded.
 - [ ] The CLI or integration smoke check was run when relevant.
 - [ ] The final diff was reviewed for unrelated changes, secrets, generated files, broken links, and inaccurate claims.
-- [ ] Relevant docs and roadmap checkboxes were updated only when evidence supports the update.
+- [ ] Relevant docs and roadmap gate states were updated only when evidence supports the update. Every changed OPEN assumption has an owner, falsification method, and linked scenario.
 - [ ] Handoff notes state what changed, files changed, commands/results, limitations, and the next exact action.
 
 ## Required final report

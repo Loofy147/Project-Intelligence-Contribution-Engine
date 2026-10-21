@@ -33,7 +33,15 @@ Criteria should describe outcomes, not vague activity such as “improve quality
 **Explicitly out of scope:**
 - Features, services, broad refactors, external writes, or follow-up tasks excluded from this work.
 
-## Dependencies and constraints
+## Dependencies, assumptions, and constraints
+
+- **Roadmap gate(s):** [stable gate IDs; verify dependencies are PASSED]
+- **Assumption IDs:** [register IDs; include only relevant assumptions]
+- **Decision scenario:** [the named outcome that makes this task applicable]
+- **Owner:** [named accountable owner]
+- **Falsification method:** [reproducible evidence that would disprove the task's key assumption]
+
+
 
 - **Dependencies:** canonical issue/task IDs; use source links.
 - **Security/privacy:** secrets, source content, network, authorization, or external side effects involved.

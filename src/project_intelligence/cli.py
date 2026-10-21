@@ -17,6 +17,7 @@ from project_intelligence.github_issues import fetch_github_issues, write_issue_
 from project_intelligence.github_pulls import fetch_github_pull_requests, write_pull_request_snapshot
 from project_intelligence.workplan import build_workplan, load_snapshot, write_workplan
 from project_intelligence.search import search_index
+from project_intelligence.snapshot_diff import compare_snapshots, write_snapshot_diff
 from project_intelligence.tasks import (
     generate_draft_tasks,
     load_task_set,
@@ -116,6 +117,17 @@ def _parser() -> argparse.ArgumentParser:
     workplan_parser.add_argument("--json-output", type=Path, help="JSON workplan output")
     workplan_parser.add_argument("--markdown-output", type=Path, help="Markdown workplan output")
 
+    diff_parser = subcommands.add_parser(
+        "compare-snapshots",
+        help="compare two read-only GitHub issue/PR snapshots without inferring completion",
+    )
+    diff_parser.add_argument("--previous-issues", type=Path, required=True, help="previous issue snapshot JSON")
+    diff_parser.add_argument("--current-issues", type=Path, required=True, help="current issue snapshot JSON")
+    diff_parser.add_argument("--previous-pulls", type=Path, help="optional previous pull-request snapshot JSON")
+    diff_parser.add_argument("--current-pulls", type=Path, help="optional current pull-request snapshot JSON")
+    diff_parser.add_argument("--json-output", type=Path, help="JSON comparison output path")
+    diff_parser.add_argument("--markdown-output", type=Path, help="Markdown comparison report path")
+
     ai_parser = subcommands.add_parser(
         "ai-review", help="optionally request a metadata-only review through OmniRoute Workbench"
     )
@@ -143,6 +155,29 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
+        if args.command == "compare-snapshots":
+            if (args.previous_pulls is None) != (args.current_pulls is None):
+                raise ValueError("Both --previous-pulls and --current-pulls must be supplied together")
+            previous_issues = load_snapshot(args.previous_issues, "issues")
+            current_issues = load_snapshot(args.current_issues, "issues")
+            previous_pulls = load_snapshot(args.previous_pulls, "pull_requests") if args.previous_pulls else None
+            current_pulls = load_snapshot(args.current_pulls, "pull_requests") if args.current_pulls else None
+            diff = compare_snapshots(previous_issues, current_issues, previous_pulls, current_pulls)
+            json_path = args.json_output or Path(".project-intelligence/snapshot-diff.json")
+            markdown_path = args.markdown_output or Path(".project-intelligence/snapshot-diff.md")
+            write_snapshot_diff(diff, json_path, format="json")
+            write_snapshot_diff(diff, markdown_path, format="markdown")
+            summary = diff["summary"]
+            print(
+                f"Compared {diff['repository']}: "
+                f"{summary['issue_records_changed']} changed issues, "
+                f"{summary['pull_request_records_changed']} changed pull requests."
+            )
+            print(f"JSON: {json_path.expanduser().resolve()}")
+            print(f"Report: {markdown_path.expanduser().resolve()}")
+            print("Read-only comparison. Absence does not imply closure, deletion, or completion.")
+            return 0
+
         if args.command == "ai-review":
             review = review_tasks(
                 args.tasks,
