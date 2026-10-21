@@ -26,6 +26,7 @@ This file is the quick navigation map. Read the linked source docs for full cont
 | `github_pulls.py` | Read-only public GitHub pull-request snapshot | `tests/test_github_pulls.py` |
 | `workplan.py` | Read-only projection of issues, PRs, registry items and engine-generated drafts | `tests/test_workplan.py` |
 | `snapshot_diff.py` | Compare previous/current issue and optional PR snapshots; report metadata changes without inference or writes | `tests/test_snapshot_diff.py` |
+| `source_relations.py` | Read issue/PR timelines and preserve only explicit GitHub cross-reference events; separate external/unverified references | `tests/test_source_relations.py` |
 | `ai_review.py` | Optional bounded metadata-only AI review, response validation, advisory report output | `tests/test_ai_review.py` |
 | `__init__.py` | Package identity/version exports | Inspect import and packaging tests if changing it |
 
