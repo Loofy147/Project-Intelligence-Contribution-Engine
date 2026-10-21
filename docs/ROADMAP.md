@@ -24,7 +24,7 @@
 - [x] Generate stable draft IDs from project identity and observed evidence.
 - [x] Generate draft tasks only; do not publish or create bounties automatically.
 - [ ] Add a broader benchmark corpus to measure heuristic precision and false positives.
-- [ ] Add explicit task acceptance/verification and freshness checks.
+- [x] Add read-only task evidence freshness verification and acceptance-criteria completeness checks.
 
 ## M3 — Existing workflow integrations
 

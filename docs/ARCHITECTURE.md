@@ -16,7 +16,7 @@ The first release is a local Python package with five responsibilities:
 2. Skip common generated directories, symlinks, oversized files, binary files, and likely credential-bearing paths.
 3. Produce an in-memory index of readable text and SHA-256 source digests.
 4. Derive a portable inventory: languages, recognized technology markers, and convention-based review signals.
-5. Generate deterministic draft IDs using project identity and source evidence.
+5. Generate deterministic draft IDs using project identity and marker location/reason, then verify their source digest and line against future scans.
 6. Write JSON/Markdown reports under `.project-intelligence/` by default.
 
 ## Task semantics and authority
@@ -24,6 +24,8 @@ The first release is a local Python package with five responsibilities:
 - `observed` means a source marker was present at a specific file and line in the indexed snapshot; it does not prove the work is still needed.
 - `hypothesis` means an inventory heuristic did not find a conventional marker; it does not prove a capability is absent.
 - Each draft includes evidence, source digest where available, review steps, and empty acceptance criteria until a human defines them.
+- `pie verify-tasks` compares stored source evidence and inventory hypotheses against a fresh scan without mutating the task file. Stale source digests or disappeared hypotheses are flagged.
+- Missing acceptance criteria are reported as blockers; freshness alone never implies approval.
 - Generated tasks are drafts. There is no automatic issue publishing, assignment, bounty creation, XP award, or source-code editing.
 
 ## Trust and safety boundaries

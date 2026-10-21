@@ -13,7 +13,12 @@ from project_intelligence.indexer import (
 )
 from project_intelligence.inventory import build_inventory, write_inventory
 from project_intelligence.search import search_index
-from project_intelligence.tasks import generate_draft_tasks, write_tasks
+from project_intelligence.tasks import (
+    generate_draft_tasks,
+    load_task_set,
+    verify_task_set,
+    write_tasks,
+)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -27,18 +32,14 @@ def _parser() -> argparse.ArgumentParser:
     index_parser.add_argument("root", nargs="?", default=".", help="project directory")
     index_parser.add_argument("--output", type=Path, help="index destination")
     index_parser.add_argument(
-        "--max-file-bytes",
-        type=int,
-        default=DEFAULT_MAX_FILE_BYTES,
+        "--max-file-bytes", type=int, default=DEFAULT_MAX_FILE_BYTES,
         help=f"skip larger files (default: {DEFAULT_MAX_FILE_BYTES})",
     )
 
     search_parser = subcommands.add_parser("search", help="search an existing index")
     search_parser.add_argument("query", help="search terms; quote multiword phrases")
     search_parser.add_argument(
-        "--index",
-        type=Path,
-        default=Path(".project-intelligence/index.json"),
+        "--index", type=Path, default=Path(".project-intelligence/index.json"),
         help="path to the JSON index",
     )
     search_parser.add_argument("--limit", type=int, default=10, help="maximum results")
@@ -50,6 +51,10 @@ def _parser() -> argparse.ArgumentParser:
     inventory_parser.add_argument("--manifest", type=Path, help="manifest path relative to root or an absolute path")
     inventory_parser.add_argument("--format", choices=("markdown", "json"), default="markdown")
     inventory_parser.add_argument("--output", type=Path, help="report destination")
+    inventory_parser.add_argument(
+        "--max-file-bytes", type=int, default=DEFAULT_MAX_FILE_BYTES,
+        help=f"skip larger files (default: {DEFAULT_MAX_FILE_BYTES})",
+    )
 
     tasks_parser = subcommands.add_parser(
         "tasks", help="draft contribution tasks from source markers and inventory hypotheses"
@@ -59,16 +64,25 @@ def _parser() -> argparse.ArgumentParser:
     tasks_parser.add_argument("--json-output", type=Path, help="JSON output path")
     tasks_parser.add_argument("--markdown-output", type=Path, help="Markdown review report path")
     tasks_parser.add_argument(
-        "--max-file-bytes",
-        type=int,
-        default=DEFAULT_MAX_FILE_BYTES,
+        "--max-file-bytes", type=int, default=DEFAULT_MAX_FILE_BYTES,
         help=f"skip larger files (default: {DEFAULT_MAX_FILE_BYTES})",
     )
+
+    verify_parser = subcommands.add_parser(
+        "verify-tasks", help="check stored task evidence against a fresh project scan"
+    )
+    verify_parser.add_argument("root", nargs="?", default=".", help="project directory")
+    verify_parser.add_argument(
+        "--task-file", type=Path,
+        help="task JSON file (default: ROOT/.project-intelligence/tasks.json)",
+    )
+    verify_parser.add_argument("--manifest", type=Path, help="manifest path relative to root or an absolute path")
+    verify_parser.add_argument(
+        "--max-file-bytes", type=int, default=DEFAULT_MAX_FILE_BYTES,
+        help=f"skip larger files (default: {DEFAULT_MAX_FILE_BYTES})",
+    )
+
     return parser
-
-
-def _index_project(root: Path, max_file_bytes: int) -> dict:
-    return build_index(root, max_file_bytes=max_file_bytes)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -100,7 +114,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "inventory":
             root = Path(args.root).expanduser().resolve()
-            index = _index_project(root, DEFAULT_MAX_FILE_BYTES)
+            index = build_index(root, max_file_bytes=args.max_file_bytes)
             inventory = build_inventory(root, index, manifest_path=args.manifest)
             default_name = "inventory.md" if args.format == "markdown" else "inventory.json"
             output = args.output or (root / ".project-intelligence" / default_name)
@@ -114,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "tasks":
             root = Path(args.root).expanduser().resolve()
-            index = _index_project(root, args.max_file_bytes)
+            index = build_index(root, max_file_bytes=args.max_file_bytes)
             inventory = build_inventory(root, index, manifest_path=args.manifest)
             task_set = generate_draft_tasks(index, inventory)
             json_path = args.json_output or (root / ".project-intelligence" / "tasks.json")
@@ -130,6 +144,30 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Review report: {markdown_path.expanduser().resolve()}")
             print("Nothing was published or created as a bounty.")
             return 0
+
+        if args.command == "verify-tasks":
+            root = Path(args.root).expanduser().resolve()
+            task_file = args.task_file or (root / ".project-intelligence" / "tasks.json")
+            task_set = load_task_set(task_file)
+            index = build_index(root, max_file_bytes=args.max_file_bytes)
+            inventory = build_inventory(root, index, manifest_path=args.manifest)
+            report = verify_task_set(index, inventory, task_set)
+            summary = report["summary"]
+            print(
+                f"Checked {summary['total_tasks']} tasks: {summary['fresh']} fresh, "
+                f"{summary['stale']} stale, {summary['unverified']} unverified."
+            )
+            print(
+                f"Acceptance criteria missing/incomplete: {summary['missing_acceptance_criteria']}. "
+                f"Eligible for execution: {summary['eligible_for_execution']}."
+            )
+            for item in report["results"]:
+                print(
+                    f"- {item['freshness'].upper()}: {item['task_id']} — {item['title']} "
+                    f"[{item['reason']}; criteria="
+                    f"{'complete' if item['acceptance_criteria_complete'] else 'missing'}]"
+                )
+            return 1 if summary["stale"] or summary["unverified"] else 0
 
         parser.error("Unknown command")
         return 2

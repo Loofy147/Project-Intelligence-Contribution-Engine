@@ -13,6 +13,7 @@ The first release is a dependency-free Python CLI. It indexes readable project f
 - Generate a Markdown inventory with observed tooling signals and separately classified review hypotheses.
 - Draft structured tasks from explicit TODO/FIXME/XXX/HACK markers and low-confidence inventory hypotheses.
 - Preserve the difference between an observed fact and an unverified hypothesis. All tasks remain drafts; nothing is published or turned into a bounty.
+- Recheck stored draft evidence with `pie verify-tasks .`; stale source evidence and hypotheses that no longer apply are flagged, and missing acceptance criteria are reported.
 
 ## Requirements
 
@@ -29,6 +30,7 @@ pie index . --output .project-intelligence/index.json
 pie search "authentication callback" --index .project-intelligence/index.json
 pie inventory . --output .project-intelligence/inventory.md
 pie tasks .
+pie verify-tasks .
 ~~~
 
 Default generated output lives in `.project-intelligence/`, which is ignored by Git. The task command writes `tasks.json` and a Markdown review report. You can select a JSON inventory with `pie inventory . --format json`.
@@ -44,7 +46,7 @@ To register a project, add an optional `.project-intelligence.json` in its root.
 - Task excerpts apply basic credential-pattern redaction, but are not a substitute for secret scanning.
 - Inventory detections are filename/extension heuristics, not a full semantic code audit.
 - Hypothesis tasks are intentionally low-confidence review prompts. Confirm the gap before implementation.
-- No task is automatically published, assigned, or converted into a funded bounty.
+- No task is automatically published, assigned, or converted into a funded bounty. Verification is read-only and does not approve tasks.
 
 ## Development
 

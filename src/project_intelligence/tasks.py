@@ -49,12 +49,13 @@ def _marker_tasks(index: dict[str, Any], project: dict[str, Any]) -> list[dict[s
             marker = match.group("marker").upper()
             reason = _redact_excerpt(match.group("reason").strip())
             excerpt = _redact_excerpt(raw_line.strip())
-            if reason:
-                title = f"Review {marker} marker: {reason}"
-            else:
-                title = f"Review {marker} marker in {path}:{line_number}"
-            title = title[:160]
-            task_key = f"marker:{path}:{line_number}:{source_digest}:{marker}"
+            title = (
+                f"Review {marker} marker: {reason}"
+                if reason
+                else f"Review {marker} marker in {path}:{line_number}"
+            )[:160]
+            # Keep the identity stable if unrelated lines in the same file change.
+            task_key = f"marker:{path}:{line_number}:{marker}:{reason}"
             tasks.append({
                 "schema_version": 1,
                 "id": _stable_id(project["id"], task_key),
@@ -155,6 +156,121 @@ def generate_draft_tasks(index: dict[str, Any], inventory: dict[str, Any]) -> di
             "human_review_required": True,
             "note": "These are drafts, not verified defects or ready-to-fund bounties. Define acceptance criteria before execution.",
         },
+    }
+
+
+def load_task_set(source: str | Path) -> dict[str, Any]:
+    """Load and minimally validate a versioned task draft file."""
+    path = Path(source).expanduser()
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Cannot read task file {path}: {exc}") from exc
+    if not isinstance(data, dict) or data.get("schema_version") != 1:
+        raise ValueError("Task file must be a schema version 1 JSON object")
+    if not isinstance(data.get("project"), dict) or not isinstance(data.get("tasks"), list):
+        raise ValueError("Task file is missing a project object or tasks list")
+    for task in data["tasks"]:
+        if not isinstance(task, dict) or not isinstance(task.get("id"), str):
+            raise ValueError("Task file contains a malformed task record")
+        if not isinstance(task.get("evidence"), dict):
+            raise ValueError("Task file contains a task without an evidence object")
+    return data
+
+
+def verify_task_set(
+    index: dict[str, Any],
+    inventory: dict[str, Any],
+    task_set: dict[str, Any],
+) -> dict[str, Any]:
+    """Compare stored task evidence to a fresh scan; never modify the task file."""
+    current_documents = {
+        document["path"]: document
+        for document in index.get("documents", [])
+        if isinstance(document, dict) and isinstance(document.get("path"), str)
+    }
+    current_signals = {
+        signal["signal_id"]
+        for signal in inventory.get("review_signals", [])
+        if isinstance(signal, dict) and isinstance(signal.get("signal_id"), str)
+    }
+    current_project_id = inventory["project"]["id"]
+    recorded_project_id = task_set.get("project", {}).get("id")
+    project_mismatch = recorded_project_id != current_project_id
+
+    results = []
+    for task in task_set["tasks"]:
+        evidence = task["evidence"]
+        evidence_type = evidence.get("type")
+        freshness = "fresh"
+        reason = "evidence_matches_current_scan"
+
+        if project_mismatch:
+            freshness, reason = "stale", "project_identity_mismatch"
+        elif evidence_type == "source_line":
+            path = evidence.get("path")
+            current = current_documents.get(path)
+            if current is None:
+                freshness, reason = "stale", "source_file_missing"
+            elif current.get("sha256") != evidence.get("source_sha256"):
+                freshness, reason = "stale", "source_file_changed"
+            else:
+                lines = current.get("content", "").splitlines()
+                line_number = evidence.get("line_number")
+                if not isinstance(line_number, int) or line_number < 1 or line_number > len(lines):
+                    freshness, reason = "stale", "source_line_missing"
+                else:
+                    match = MARKER_RE.search(lines[line_number - 1])
+                    if not match or match.group("marker").upper() != evidence.get("marker"):
+                        freshness, reason = "stale", "source_marker_no_longer_matches"
+        elif evidence_type == "inventory_observation":
+            signal_id = evidence.get("signal_id")
+            if signal_id not in current_signals:
+                freshness, reason = "stale", "hypothesis_no_longer_detected"
+        else:
+            freshness, reason = "unverified", "unsupported_evidence_type"
+
+        criteria = task.get("acceptance_criteria")
+        criteria_complete = (
+            isinstance(criteria, list)
+            and len(criteria) > 0
+            and all(isinstance(item, str) and item.strip() for item in criteria)
+        )
+        results.append({
+            "task_id": task["id"],
+            "title": task.get("title", ""),
+            "freshness": freshness,
+            "reason": reason,
+            "acceptance_criteria_complete": criteria_complete,
+            "review_blockers": (
+                [] if criteria_complete else ["acceptance_criteria_missing_or_incomplete"]
+            ),
+            "eligible_for_execution": (
+                freshness == "fresh"
+                and criteria_complete
+                and task.get("status") == "approved"
+                and task.get("requires_review") is False
+            ),
+        })
+
+    fresh_count = sum(item["freshness"] == "fresh" for item in results)
+    stale_count = sum(item["freshness"] == "stale" for item in results)
+    unverified_count = sum(item["freshness"] == "unverified" for item in results)
+    criteria_missing_count = sum(not item["acceptance_criteria_complete"] for item in results)
+    return {
+        "schema_version": 1,
+        "project_id": current_project_id,
+        "task_file_project_id": recorded_project_id,
+        "summary": {
+            "total_tasks": len(results),
+            "fresh": fresh_count,
+            "stale": stale_count,
+            "unverified": unverified_count,
+            "missing_acceptance_criteria": criteria_missing_count,
+            "eligible_for_execution": sum(item["eligible_for_execution"] for item in results),
+        },
+        "results": results,
+        "policy": "Verification is read-only. Stale evidence must be reviewed; fresh drafts still require acceptance criteria and explicit approval before execution.",
     }
 
 
