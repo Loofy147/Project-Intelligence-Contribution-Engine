@@ -30,6 +30,8 @@ This file is the quick navigation map. Read the linked source docs for full cont
 | `ai_review.py` | Optional bounded metadata-only AI review, response validation, advisory report output | `tests/test_ai_review.py` |
 | `__init__.py` | Package identity/version exports | Inspect import and packaging tests if changing it |
 
+`tests/test_planning_contract.py` checks that every OPEN assumption retains an owner, falsification method, required evidence, and scenario outcomes, and that roadmap gate IDs/dependencies and assumption references remain structurally valid.
+
 Test mappings are a starting point, not a guarantee that a behavior appears in only one file. Search for the function, data field, or CLI command across source and tests before editing.
 
 ## Documentation
