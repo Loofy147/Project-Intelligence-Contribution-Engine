@@ -72,3 +72,50 @@ This is a proposed order derived from current issue descriptions, repository doc
 - Inventory hypotheses and unchecked checklist items require review.
 - Registry projections remain anchored to the source registry and do not mutate source status.
 - A project must never be reported complete merely because no conventional TODO comments were detected.
+
+
+## Continuation recheck — 2026-10-21
+
+**Engine `main`:** `488245ad0cb74463bb0dc670aac43db45a5e11e5`. The current `tests`, `evaluate-real-projects`, and `omniroute-workbench` workflows succeeded on this commit:
+- [Engine tests](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39621316820)
+- [Real-project evaluation](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39621316825)
+- [OmniRoute Workbench tests](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39621316851)
+
+The target `main` branches were rechecked without changing them:
+
+| Repository | Current reviewed main commit | Open issues | Open PRs | Latest observed CI |
+|---|---|---:|---:|---|
+| [Contribution Network](https://github.com/Loofy147/contribution-network) | `8fe5f3482a3104468eb6bbc7c425bbc73202ca35` | 0 | 0 | Documentation CI and secret scanning passed on current head |
+| [Context Swarm](https://github.com/Loofy147/Context-swarm) | `e73d521e8d246691888d656419457d5b0eedd055` | 0 | 0 | [SCS contract run](https://github.com/Loofy147/Context-swarm/actions/runs/38961625386) passed |
+| [ContribQuest WorkLink](https://github.com/Loofy147/Contribution-bounties-centre-) | `773edc70f418a619ed8575aeda2ce30fe131cedb` | 9 | 11 | Existing main CI is green; the two new proposals have green PR checks |
+
+The ContribQuest open issue count and issue-title priority declarations remain unchanged: five P0 and four P1. Its open PR count increased from nine to eleven because the two draft proposals below were added. These proposals are not merged and do not close their related P0/P1 issues.
+
+### New draft proposals
+
+**[PR #27 — Atomic idempotent community XP ledger and audit events](https://github.com/Loofy147/Contribution-bounties-centre-/pull/27)**  
+Head `ea602ef2ba8ea8420c3197cf5119b8d6df8a2421`. Its repository-contract, CodeQL and secret-scanning checks passed:
+- [Contract](https://github.com/Loofy147/Contribution-bounties-centre-/actions/runs/39648777469)
+- [CodeQL](https://github.com/Loofy147/Contribution-bounties-centre-/actions/runs/39648777425)
+- [Secret scan](https://github.com/Loofy147/Contribution-bounties-centre-/actions/runs/39648777356)
+
+The branch proposes deterministic `community_xp_<contribution-id>` ledger keys and audit events in the same transaction as community submission, resubmission and review transitions. This is **source-level evidence only**. It does not establish database atomicity/concurrency behavior in live AppDeploy. Issues #3 and #7 remain open pending concurrent acceptance tests, retry after an unknown outcome, transaction-conflict tests, verification of persisted rows, and an explicit strategy for historical accepted work that predates the ledger.
+
+**[PR #28 — Pin frontend dependencies and use npm ci in CI](https://github.com/Loofy147/Contribution-bounties-centre-/pull/28)**  
+Head `2c273e186795aa65aa47987c175505cec99f55f3`. Its repository-contract, CodeQL and secret-scanning checks passed:
+- [Contract](https://github.com/Loofy147/Contribution-bounties-centre-/actions/runs/39649967118)
+- [CodeQL](https://github.com/Loofy147/Contribution-bounties-centre-/actions/runs/39649967101)
+- [Secret scan](https://github.com/Loofy147/Contribution-bounties-centre-/actions/runs/39649967201)
+
+The lockfile was generated using Node 22 and validated through `npm ci`, TypeScript validation, the AppDeploy-externalized Vite build, artifact smoke test and contract suite in [bootstrap run 39649570566](https://github.com/Loofy147/Contribution-bounties-centre-/actions/runs/39649570566). The temporary workflow that published the file was removed from its helper branch after success.
+
+This resolves a reproducibility gap for the **frontend validation toolchain**, not for a self-hosted app runtime. The production backend still depends on platform-injected `@appdeploy/sdk`; the local validation frontend leaves `@appdeploy/client` external. Keep issue #1 open until the intended runtime contract and its live source/deployment relationship are documented and verified.
+
+### Current safe next actions
+
+1. Review and decide whether to accept PR #28; its automated checks cover locked installation and frontend validation, but not an independent AppDeploy deployment.
+2. Keep PR #27 draft until the AppDeploy database behavior is tested for concurrent acceptance, retries after unknown outcomes and transaction-conflict paths.
+3. Continue access-boundary verification without assuming workspace membership scopes global bounty listings: the current product contract says bounties are global, and workspace privacy would require an explicit data-model/authorization change.
+4. Keep the original GitHub issue as the canonical work record. Do not auto-close P0/P1 issues merely because the associated branch checks pass.
+
+No target `main` repository was changed during this recheck; only the engine's evaluation report is being refreshed.
