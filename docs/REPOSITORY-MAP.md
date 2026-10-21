@@ -7,6 +7,7 @@ This file is the quick navigation map. Read the linked source docs for full cont
 | Path | Purpose | Read when |
 |---|---|---|
 | `AGENTS.md` | Mandatory rules for AI/coding agents | Before every task |
+| `docs/OPERATING-CHARTER.md` | Cross-cutting professional responsibilities, research, evidence, integrations, authority and definition of done | Scoping any non-trivial task or reviewing quality |
 | `README.md` | Product boundary, installation, CLI examples | Starting work or changing a public workflow |
 | `pyproject.toml` | Python version, package metadata, dev dependencies, `pie` entry point, pytest configuration | Changing packaging, runtime, commands, or tests |
 | `CONTRIBUTING.md` | Contribution workflow | Preparing a code change |
