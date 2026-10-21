@@ -56,7 +56,7 @@ python -m pytest
 pie --help
 ~~~
 
-See [the architecture](docs/ARCHITECTURE.md), [the roadmap](docs/ROADMAP.md), [the project manifest specification](docs/PROJECT-MANIFEST.md), and [contributing](CONTRIBUTING.md).
+See [the architecture](docs/ARCHITECTURE.md), [the roadmap](docs/ROADMAP.md), [the project manifest specification](docs/PROJECT-MANIFEST.md), and [contributing](CONTRIBUTING.md). To evaluate current public project snapshots, run the **Evaluate real projects** GitHub Actions workflow. It checks out targets without write credentials and uploads per-project inventory, task drafts, and verification reports as 14-day artifacts.
 
 ## License
 
