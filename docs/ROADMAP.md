@@ -38,6 +38,7 @@ GATE-00 Current baseline (PASSED)
   │     └── GATE-06 AI review value experiment (evaluates A-004)
   ├── GATE-02 Source snapshot comparison and freshness (PASSED)
   │     └── GATE-03 Explicit issue/PR relationships (PASSED; evaluates A-005)
+  └── GATE-12 Planning-contract validation in CI (IN_PROGRESS)
   ├── GATE-11 Keyword-search quality (BLOCKED by the policy target in A-003)
   ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
   └── GATE-08 Persistence decision (DEFERRED until a concrete requirement is demonstrated; monitors A-007)
@@ -194,6 +195,16 @@ The graph is authoritative; the display above is a navigation aid. Where depende
   - `KEYWORD_BAR_MET` → keep the dependency-light ranker; do not add embeddings or a new retrieval service.
   - `KEYWORD_BAR_MISSED` → improve tokenization/ranking and repeat the same evaluation; only study semantic retrieval if a material measured gap remains.
   - `INCONCLUSIVE` → add representative queries and keep the retrieval architecture unchanged.
+
+### GATE-12 — Enforce assumptions-register and roadmap structure in CI
+
+- **State:** IN_PROGRESS
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-00
+- **Observed gap:** The register and roadmap describe required fields, but no automated test currently prevents an edit from removing an OPEN item's owner, falsification method, evidence requirements, or scenario branch.
+- **Purpose:** Make the planning rules enforceable without adding a runtime dependency or maintaining a second source of truth.
+- **Exit criteria:** Tests parse the committed Markdown files; verify unique IDs, valid states, required fields for every OPEN item, recorded evidence for resolved assumptions, declared owners/dependencies for all gates, and referential integrity for gate/assumption IDs; malformed fixtures are rejected; the core test and CLI-help workflows pass.
+- **Boundary:** Structural checks do not establish that cited evidence is true or that an owner decision is wise. Human review of substance remains necessary.
 
 ## Capability baseline already established
 
