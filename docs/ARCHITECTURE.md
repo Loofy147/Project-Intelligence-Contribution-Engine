@@ -11,6 +11,7 @@
 - **Work-plan projection**: sorts existing issues by an explicit leading `[P0]`–`[P3]` title prefix, and keeps issues, proposed PRs, canonical registry items and engine-generated draft findings separate.
 - **CLI**: exposes index, search, inventory, GitHub snapshot, work-plan, task-draft and evidence-verification operations.
 - **Snapshot comparison**: compares same-repository issue snapshots and optional paired PR snapshots by canonical record number; reports metadata differences and filtered-query coverage without changing records or inferring relationships/completion.
+- **Planning-contract tests**: validate the committed assumptions register and roadmap for required owner/falsification/evidence/scenario fields and references to declared gate/assumption IDs. The tests enforce structure, not the truth of cited evidence or the quality of policy decisions.
 - **Explicit relationship audit**: reads timelines for snapshot-selected issues/PRs and extracts only GitHub `cross-referenced` events. It preserves source/target types, numbers, URLs, actor, time, timeline evidence URL, repository scope, and an explicit unknown-completion state; external/unverified references remain separate.
 
 
