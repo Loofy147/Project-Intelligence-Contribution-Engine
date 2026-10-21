@@ -122,6 +122,20 @@ Tests use a fake upstream and should not need live provider keys. Do not use rea
 
 GitHub snapshot and real-project evaluation workflows can require network access and are separate from unit tests. Run them only when relevant. A target project's successful indexing is not proof that its application is correct. Preserve target repositories as read-only.
 
+### Explicit relationship audit
+
+To audit cross-reference links for a repository, first produce public GitHub issue/PR snapshots. Then run:
+
+~~~bash
+pie github-relations \
+  --issues .project-intelligence/OWNER--REPO-issues.json \
+  --pulls .project-intelligence/OWNER--REPO-pulls.json
+~~~
+
+Supply the correct snapshot paths; either input is optional, but at least one is required. Each record in the supplied snapshots becomes a timeline target. The default cap is 50 targets; increase `--max-records` deliberately if needed. The audit uses read-only GitHub timeline GET requests and writes a JSON report plus a Markdown summary.
+
+Only an actual `cross-referenced` event with a grounded source record produces a relationship. An in-repository relation additionally requires repository identity to match. External/unverified sources are kept separate. The record includes direction, source/target IDs and URLs, event actor/time, timeline URL, and `verification_state=explicit_source_event_observed`; completion state stays unknown. Do not mark a linked issue resolved solely from that event. Missing events mean “not observed in the selected timelines,” not “no relationship exists.”
+
 ### Read-only source snapshot comparison
 
 To compare two previously captured issue snapshots, optionally including matching pull-request snapshots:
