@@ -42,7 +42,7 @@ GATE-00 Current baseline (PASSED)
   ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
   ├── GATE-08 Persistence decision (DEFERRED until a concrete requirement; monitors A-007)
   └── GATE-12 Planning-contract validation in CI (PASSED)
-        └── GATE-13 Professional operating charter adoption (PASSED)
+        └── GATE-13 Professional operating charter adoption (IN_PROGRESS)
 
 GATE-03 + GATE-04 + applicable access decision
   └── GATE-09 ContribQuest read-only workflow integration
@@ -210,7 +210,7 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-13 — Adopt the professional operating charter across work entry points
 
-- **State:** PASSED
+- **State:** IN_PROGRESS
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00 and GATE-12
 - **Purpose:** Make professional completeness the default across task interpretation, execution, research, tool use, documentation, contribution guidance, and agent behavior. The user should provide direction and constraints, not enumerate routine responsibilities.
