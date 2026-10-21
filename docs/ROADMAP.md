@@ -37,7 +37,7 @@ GATE-00 Current baseline (PASSED)
   │     ├── GATE-05 Structured readiness parsing (also depends on GATE-02)
   │     └── GATE-06 AI review value experiment (evaluates A-004)
   ├── GATE-02 Source snapshot comparison and freshness (PASSED)
-  │     └── GATE-03 Explicit issue/PR relationships (READY; evaluates A-005)
+  │     └── GATE-03 Explicit issue/PR relationships (PASSED; evaluates A-005)
   ├── GATE-11 Keyword-search quality (BLOCKED by the policy target in A-003)
   ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
   └── GATE-08 Persistence decision (DEFERRED until a concrete requirement is demonstrated; monitors A-007)
@@ -101,13 +101,15 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-03 — Link issues and pull requests only with explicit evidence
 
-- **State:** READY
+- **State:** PASSED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-02
 - **Assumption evaluated by this gate:** [A-005](ASSUMPTIONS-REGISTER.md#a-005--explicit-evidence-is-available-to-link-related-github-issues-and-pull-requests). It is a test objective, not a prerequisite for running the audit.
 - **Purpose:** Correlate source records only where GitHub provides a canonical relationship or the maintainer records an explicit mapping.
-- **Exit criteria:** Relationship type, source ID, URL, evidence basis, and verification state are preserved. Tests prove title similarity alone cannot create a link. A missing relation remains “unknown,” not “unrelated” or “resolved.”
-- **Scenario branches:** If explicit references are common, implement only evidenced relation types. If sparse, preserve separate lists and use maintainer-confirmed mappings only. If inconclusive, do not add automatic linking.
+- **Implementation:** `pie github-relations` reads only the timelines of records in supplied issue/PR snapshots and preserves explicit `cross-referenced` events. It separates sources from other repositories or without a verifiable repository identity.
+- **Evidence:** Core tests and CLI-help check passed on code-complete commit [`1c5b0e37`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39660428573); Workbench checks passed on the same commit [workflow](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39660428561). Live API spot-checks observed PR #27 as an explicit cross-reference on [issue #3 timeline](https://api.github.com/repos/Loofy147/Contribution-bounties-centre-/issues/3/timeline) and [issue #7 timeline](https://api.github.com/repos/Loofy147/Contribution-bounties-centre-/issues/7/timeline). An external bot reference was kept distinct on [issue #21 timeline](https://api.github.com/repos/Loofy147/Contribution-bounties-centre-/issues/21/timeline).
+- **Exit criteria:** Relationship type, source/target IDs, URLs, event evidence, and verification state are preserved. Tests prove title similarity alone cannot create a link. A missing relation remains “unknown,” not “unrelated” or “resolved.” All met for the implemented GitHub timeline event type; this is not an exhaustive guarantee of all possible relationships across every repository.
+- **Scenario selected:** `EXPLICIT_RELATIONS_AVAILABLE`, scope-limited to canonical GitHub timeline cross-reference events. Do not infer resolution, completion, or relation absence from missing events.
 
 ### GATE-04 — Define human approval, execution eligibility, and closure
 
