@@ -8,6 +8,7 @@ The Python CLI indexes readable project files, ranks keyword search results, inv
 
 - **Professional operating standard:** [Operating charter](docs/OPERATING-CHARTER.md)
 - **Related systems and project boundaries:** [Portfolio context](docs/PORTFOLIO-CONTEXT.md)
+- **Existing goals, decisions, accounts/integrations and project handoffs:** use the linked canonical records in the [Integrated Operations OS in Notion](https://app.notion.com/p/3f84508c33af815a9a5dd587d3a46f04); retrieve existing context before asking for it again.
 - **Mandatory agent instructions:** [`AGENTS.md`](AGENTS.md)
 - **Do the task step by step:** [Execution playbook](docs/EXECUTION-PLAYBOOK.md)
 - **Choose a gate using dependencies and evidence:** [Dependency-gated roadmap](docs/ROADMAP.md)

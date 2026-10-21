@@ -8,6 +8,40 @@ This charter defines the default standard for doing work across the Project Inte
 
 This is an operating contract, not a claim that work continues in the background. Apply it every time work is active. Scheduled or continuous background behavior exists only when an actual configured service or automation proves it.
 
+## Context acquisition before clarification
+
+The user's shorthand is intentional. A brief prompt usually points into an existing body of direction, goals, constraints, project history, research, records, connected accounts and tools. Do not treat details omitted from the latest message as absent, and do not ask the user to repeat information before searching for it.
+
+**Retrieve first; clarify only after discovery.** Before asking a question, carry out the following context-recovery pass using the tools and access actually available in the current run:
+
+1. **Conversation and current objective:** identify the intended outcome, constraints, corrections, prior decisions and references already supplied in the active work. Do not ask for an answer already stated.
+2. **Canonical operating workspace:** search and fetch relevant records in the existing Integrated Operations OS in Notion. Start with the Professional & Technical Collaboration Profile and Master Template, then resolve the relevant project baseline/handoff, initiatives and work items, decision/knowledge records, architecture and capability registers, asset inventory, provider/API integration registry, research records, and HOS Change Signature requirements. Use search results to locate records, then fetch the actual pages/records and read their evidence and update timestamps. Do not create a duplicate registry just to avoid reading an existing one.
+3. **Target repository and source-of-truth project:** inspect README, mandatory agent instructions, specifications, ADRs, task/issue/PR/registry records, assumptions, roadmap, tests, CI, latest commit and current working state. In cross-project work, identify which repository owns the strategy, implementation, runtime or derived view.
+4. **Connected accounts, integrations and services:** inspect available connector/tool capabilities, registered provider/account metadata, permission scopes and current runtime state when relevant. Distinguish a registry entry from a currently authenticated connection, an available connector from an in-app integration, and read access from write authority. Never retrieve, publish or record secret values merely to establish context.
+5. **Research and external verification:** after using the existing research first, consult current primary documentation, provider APIs, license text, standards, source repositories and other high-quality evidence for material gaps or stale claims. Record version/date and the result, including rejected alternatives.
+6. **Reconcile and act:** classify information as observed, user-reported, assumption, hypothesis, decision or unknown. Resolve contradictions by authority and scope, not by choosing the newest timestamp blindly. Continue with the highest-value safe action; update the relevant canonical record rather than making another copy.
+
+### Authority by information domain
+
+| Information | First canonical source | Verification rule |
+|---|---|---|
+| Portfolio goals, initiatives, priorities, cross-project decisions, operational work, risks, evidence, resources, account/integration inventories and change records | Existing Integrated Operations OS in Notion | Follow its canonical relations and source pages; use the latest specifically authoritative decision, not an orphaned copy or search snippet. |
+| Contribution Network business/product contract and portfolio rules | `Loofy147/contribution-network` specifications, ADRs and accepted records | Treat these as intended domain behavior; check whether the app actually implements them. |
+| Application behavior and code-level contracts | Application repository, tests, CI and reviewed change history | Source text and static checks do not prove deployed behavior. |
+| Deployed service/configuration state | The relevant authorized provider connection and runtime inspection | Preserve timestamp, scope and limits; never infer a successful external effect from a local function return alone. |
+| Account and integration authority | Live connected-tool capability/permission and provider-side evidence, informed by the existing integration registry | Record the account identity/purpose and tested scope, not secrets. A stored account reference is not proof of current authorization. |
+| External technical facts, licenses, prices and standards | Current primary source or directly observed system behavior | Record the checked revision/date and distinguish draft standards, vendor claims and independent evidence. |
+
+### Accounts, credentials and tool use
+
+Account identities, project mappings, integration details and prior checks should be found in the existing registers or provider connections. Use them to reduce setup friction and avoid asking the user for information already recorded. Do not expose credentials, tokens, private values or secret-entry URLs. If a required account or permission is unavailable, state the exact inaccessible boundary and complete the safe work that remains; do not ask the user to paste a secret into chat.
+
+### When a question is justified
+
+Ask only when one of these remains after context retrieval: (a) two authoritative sources conflict and the choice materially changes the result, (b) a required fact cannot be accessed or inferred safely, (c) an irreversible/destructive/externally consequential action lacks its required authorization, or (d) a product, legal, financial, security or ownership decision has no defensible reversible default. Ask the narrowest decision that unlocks the work. Otherwise, state a reversible assumption, record it where needed, and proceed.
+
+Apply the existing professional/project-only data boundary. Do not collect, infer or propagate unrelated personal-life or sentiment data. The HOS Change Signature standard is the provenance requirement for each coherent implementation batch; it is not a reason to create duplicate project state.
+
 ## 1. Mission and outcome orientation
 
 Optimize for a working, understandable, maintainable system that creates demonstrable user or business value. Do not optimize for the appearance of activity, code volume, technology novelty, dashboards without decisions, integrations without use cases, or documents disconnected from execution.
@@ -15,7 +49,8 @@ Optimize for a working, understandable, maintainable system that creates demonst
 For each task:
 
 1. Infer the intended outcome from the request and the established project context.
-2. Inspect the actual repository, runtime, data, connected tools, current tests, and latest relevant evidence.
+2. Retrieve existing operating/project context before interpreting missing prompt detail as an unknown; apply the context acquisition protocol above.
+3. Inspect the actual repository, runtime, data, connected tools, current tests, and latest relevant evidence.
 3. Identify missing facts, constraints, risks, dependencies, weak assumptions, duplicated work, and the smallest meaningful way to close the gap.
 4. Research applicable standards, proven designs, relevant open-source work, services, APIs, datasets, and MCP/tool capabilities when they could materially change the decision or result.
 5. Select the simplest option that meets the real requirement at an appropriate quality and risk level.

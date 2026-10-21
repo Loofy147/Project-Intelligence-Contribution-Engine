@@ -5,6 +5,7 @@ What user-visible behavior or documented contract does this change deliver?
 ## Professional coverage
 
 - [ ] Relevant product/business and user outcome considered.
+- [ ] Existing goals, constraints, decisions, research, account/integration mappings and canonical work records were searched before asking for context or creating duplicate records.
 - [ ] Architecture, data, security/privacy, reliability and UX concerns assessed where applicable.
 - [ ] Existing tools, APIs, MCPs, datasets, standards, and open-source options researched when they could materially improve the outcome.
 - [ ] Agent/contributor guidance, operations, and durable documentation updated where affected.

@@ -23,6 +23,7 @@ The shared operating principles are:
 
 | System | Portfolio role | Current boundary observed in the canonical repository |
 |---|---|---|
+| [Integrated Operations OS (Notion)](https://app.notion.com/p/3f84508c33af815a9a5dd587d3a46f04) | Canonical portfolio operating control plane for goals, initiatives, work items, decisions, risks, evidence, resources, integration/account inventories, asset provenance and HOS change records. | This is the existing organization layer, not a new system to recreate inside PIE. Search/fetch its linked canonical records before asking for context, creating task copies, choosing providers or repeating prior research. The [Professional & Technical Collaboration Profile](https://app.notion.com/p/3ff4508c33af81a9aa47c4a3d5f920b4), [Operating Guide](https://app.notion.com/p/3f84508c33af819da661f3726ae407c6), [Asset Inventory](https://app.notion.com/p/3ff4508c33af81aa9bbcfbe26e8bcd05), [Provider API Integration Registry](https://app.notion.com/p/b85f0c4d583d4a41bb0134e01968f5a8), portfolio register, project baselines and handoffs are discovery starting points, not proof that each underlying service is currently authorized. Apply the [HOS Change Signature v1 standard](https://app.notion.com/p/3ff4508c33af81108658d24c4875ed68) to every coherent implementation batch. |
 | [Contribution Network](https://github.com/Loofy147/contribution-network) | Strategic and operating source of truth for the contribution-network business model, portfolio rules, lifecycle, value/rewards, governance and engineering primitives. The project itself is Project 0 and the first real consumer. | The repository describes a cross-niche coordination model in which the project is the unit of coordination, contributions are participation units, and the accepted outcome is the unit of delivery. Founder self-use supports dogfooding but does not by itself prove external demand or commercial economics. |
 | [Contributions Centre / ContribQuest](https://github.com/Loofy147/Contribution-bounties-centre-) | Current application prototype and first consumer implementation for contribution work, acceptance evidence and XP. | The README reports an AppDeploy-based prototype, not a verified standalone production build. The AppDeploy SDK/client dependencies are not declared in the checked-in package manifest; live owner/contributor flows, authorization, persistence, XP idempotency and other end-to-end acceptance still require verification. The repository says no license has been selected. Listings are not escrow or guaranteed payouts. |
 | [Project Intelligence & Contribution Engine (PIE)](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine) | Reusable, local-first engineering and research instrument for inspecting project evidence and turning verified gaps into reviewable contribution work. | Read-only by default toward scanned repositories and external systems. Produces evidence-linked task drafts, public GitHub snapshots, work-plan projections, metadata comparisons and explicit-reference audits. It must preserve canonical issue/PR/registry records rather than create a competing backlog. |
@@ -44,6 +45,8 @@ The shared operating principles are:
 
 ## How to use this map
 
+For every non-trivial task, retrieve the existing context before asking the user to repeat it. Start from the [Integrated Operations OS](https://app.notion.com/p/3f84508c33af815a9a5dd587d3a46f04) and [Professional & Technical Collaboration Profile](https://app.notion.com/p/3ff4508c33af81a9aa47c4a3d5f920b4); fetch the project-specific baseline/handoff, work item, decision, asset/integration record and relevant research, then verify source and current state.
+
 When a request spans more than one project:
 
 1. Re-read the relevant canonical README, architecture/specification, dependency map, roadmap and open assumptions from each target repository.
@@ -55,6 +58,15 @@ When a request spans more than one project:
 
 ## Primary context sources
 
+- [Integrated Operations OS — Master Template](https://app.notion.com/p/3f84508c33af815a9a5dd587d3a46f04)
+- [Professional & Technical Collaboration Profile](https://app.notion.com/p/3ff4508c33af81a9aa47c4a3d5f920b4)
+- [HOS Change Signature v1 — Add-ons & Implementations](https://app.notion.com/p/3ff4508c33af81108658d24c4875ed68)
+- [ContribQuest & Contribution Network — Clean Baseline v1.0](https://app.notion.com/p/3f94508c33af81c9b11ceaca80f769d1)
+- [Cross-Conversation Handoff — ContribQuest Analytics, MCP & Release Readiness](https://app.notion.com/p/3fb4508c33af81938d63e4d1598678eb)
+- [Platform Ecosystem Investigation & Reuse Plan](https://app.notion.com/p/3f94508c33af8150ab23c27ea1da0542)
+- [Portfolio Architecture Register — Systems & Verification Gates](https://app.notion.com/p/3ff4508c33af81b6897de99f19db86f9)
+- [Asset Inventory — Metadata Census & Provenance Rules](https://app.notion.com/p/3ff4508c33af81aa9bbcfbe26e8bcd05)
+- [Provider API Integration Registry](https://app.notion.com/p/b85f0c4d583d4a41bb0134e01968f5a8)
 - [Contribution Network — First-Consumer Project Charter](https://github.com/Loofy147/contribution-network/blob/main/docs/10-first-consumer-project-charter.md)
 - [Contribution Network — Engineering Primitives and Integration Architecture](https://github.com/Loofy147/contribution-network/blob/main/docs/11-engineering-primitives.md)
 - [Contributions Centre — Portfolio Alignment](https://github.com/Loofy147/Contribution-bounties-centre-/blob/main/docs/portfolio-alignment.md)
