@@ -63,4 +63,4 @@ Do not call a check “passed” if it was only planned or inferred. Distinguish
 
 ## Startup instruction for the next session
 
-Read `AGENTS.md`, `docs/OPERATING-CHARTER.md`, `docs/EXECUTION-PLAYBOOK.md`, and `docs/REPOSITORY-MAP.md`. Recheck the current repository HEAD and working tree before trusting this handoff. Then execute the exact next action above, validate it, and update the canonical handoff/task record.
+Read `AGENTS.md`, `docs/OPERATING-CHARTER.md`, `docs/EXECUTION-PLAYBOOK.md`, and `docs/REPOSITORY-MAP.md`. For cross-project work, also read `docs/PORTFOLIO-CONTEXT.md` and verify each relevant repository independently. Recheck the current repository HEAD and working tree before trusting this handoff. Then execute the exact next action above, validate it, and update the canonical handoff/task record.
