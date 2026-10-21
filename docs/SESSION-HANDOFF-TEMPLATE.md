@@ -16,6 +16,14 @@
 
 [One or two sentences stating the requested result.]
 
+## Operating coverage
+
+- **User/business outcome addressed:** [outcome and success signal]
+- **Professional areas assessed:** [product/business, architecture, data, security/privacy, UX, testing, operations, licensing, integrations, research, contribution/agent guidance]
+- **Tools/APIs/MCPs/datasets evaluated:** [what was relevant, what was used or rejected, and why]
+- **Research references:** [sources/version/freshness; note if none materially changed the decision]
+- **Canonical roadmap gate and assumptions:** [gate IDs; OPEN assumptions and selected scenario]
+
 ## Evidence inspected
 
 - [File/function/test/source record and what it proved.]
@@ -55,4 +63,4 @@ Do not call a check “passed” if it was only planned or inferred. Distinguish
 
 ## Startup instruction for the next session
 
-Read `AGENTS.md`, `docs/EXECUTION-PLAYBOOK.md`, and `docs/REPOSITORY-MAP.md`. Recheck the current repository HEAD and working tree before trusting this handoff. Then execute the exact next action above, validate it, and update the canonical handoff/task record.
+Read `AGENTS.md`, `docs/OPERATING-CHARTER.md`, `docs/EXECUTION-PLAYBOOK.md`, and `docs/REPOSITORY-MAP.md`. Recheck the current repository HEAD and working tree before trusting this handoff. Then execute the exact next action above, validate it, and update the canonical handoff/task record.
