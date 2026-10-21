@@ -146,7 +146,9 @@ For each project, maintain the minimum coherent set of artifacts appropriate to 
 
 Do not create duplicate ledgers when a canonical one already exists. Link related work by durable identifiers and source evidence. Keep docs synchronized with real code and runtime behavior. When handing work to another conversation or contributor, report the exact branch/commit, current state, completed evidence, unresolved assumptions, blocked dependencies, and the next action. Never include secrets.
 
-## 8. Project-specific application
+## 8. Portfolio context and project-specific application
+
+For work that spans the user's related systems, read the [Portfolio Context and System Boundaries](PORTFOLIO-CONTEXT.md). It records the verified high-level roles and separation of strategy, the ContribQuest prototype, PIE, the Swarm Context System, Personal OS apps, optional AI review, and the deferred portfolio control plane. It is an orientation index; each project's current canonical specifications and runtime evidence take precedence.
 
 This charter is intentionally broader than the current CLI. For the Project Intelligence & Contribution Engine itself:
 
