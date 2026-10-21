@@ -37,7 +37,8 @@ GATE-00 Current baseline (PASSED)
   │     ├── GATE-05 Structured readiness parsing (also depends on GATE-02)
   │     └── GATE-06 AI review value experiment (evaluates A-004)
   ├── GATE-02 Source snapshot comparison and freshness (PASSED)
-  │     └── GATE-03 Explicit issue/PR relationships (READY; evaluates A-005)
+  │     └── GATE-03 Explicit issue/PR relationships (PASSED; evaluates A-005)
+  └── GATE-12 Planning-contract validation in CI (PASSED)
   ├── GATE-11 Keyword-search quality (BLOCKED by the policy target in A-003)
   ├── GATE-07 Private-repository scope decision (BLOCKED until target scope is explicit; evaluates A-006)
   └── GATE-08 Persistence decision (DEFERRED until a concrete requirement is demonstrated; monitors A-007)
@@ -101,13 +102,15 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-03 — Link issues and pull requests only with explicit evidence
 
-- **State:** READY
+- **State:** PASSED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-02
 - **Assumption evaluated by this gate:** [A-005](ASSUMPTIONS-REGISTER.md#a-005--explicit-evidence-is-available-to-link-related-github-issues-and-pull-requests). It is a test objective, not a prerequisite for running the audit.
 - **Purpose:** Correlate source records only where GitHub provides a canonical relationship or the maintainer records an explicit mapping.
-- **Exit criteria:** Relationship type, source ID, URL, evidence basis, and verification state are preserved. Tests prove title similarity alone cannot create a link. A missing relation remains “unknown,” not “unrelated” or “resolved.”
-- **Scenario branches:** If explicit references are common, implement only evidenced relation types. If sparse, preserve separate lists and use maintainer-confirmed mappings only. If inconclusive, do not add automatic linking.
+- **Implementation:** `pie github-relations` reads only the timelines of records in supplied issue/PR snapshots and preserves explicit `cross-referenced` events. It separates sources from other repositories or without a verifiable repository identity.
+- **Evidence:** Core tests and CLI-help check passed on code-complete commit [`1c5b0e37`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39660428573); Workbench checks passed on the same commit [workflow](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39660428561). Live API spot-checks observed PR #27 as an explicit cross-reference on [issue #3 timeline](https://api.github.com/repos/Loofy147/Contribution-bounties-centre-/issues/3/timeline) and [issue #7 timeline](https://api.github.com/repos/Loofy147/Contribution-bounties-centre-/issues/7/timeline). An external bot reference was kept distinct on [issue #21 timeline](https://api.github.com/repos/Loofy147/Contribution-bounties-centre-/issues/21/timeline).
+- **Exit criteria:** Relationship type, source/target IDs, URLs, event evidence, and verification state are preserved. Tests prove title similarity alone cannot create a link. A missing relation remains “unknown,” not “unrelated” or “resolved.” All met for the implemented GitHub timeline event type; this is not an exhaustive guarantee of all possible relationships across every repository.
+- **Scenario selected:** `EXPLICIT_RELATIONS_AVAILABLE`, scope-limited to canonical GitHub timeline cross-reference events. Do not infer resolution, completion, or relation absence from missing events.
 
 ### GATE-04 — Define human approval, execution eligibility, and closure
 
@@ -140,7 +143,7 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-07 — Decide whether private-repository access is actually required
 
-- **State:** BLOCKED (scope decision required)
+- **State:** BLOCKED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00
 - **Assumption to resolve:** [A-006](ASSUMPTIONS-REGISTER.md#a-006--private-repository-support-is-required-for-the-intended-evaluation-scope).
@@ -151,7 +154,7 @@ The graph is authoritative; the display above is a navigation aid. Where depende
 
 ### GATE-08 — Decide whether local JSON persistence is insufficient
 
-- **State:** DEFERRED until a concrete requirement is demonstrated
+- **State:** DEFERRED
 - **Owner:** Loofy147 (repository maintainer)
 - **Dependencies:** GATE-00
 - **Assumption to monitor:** [A-007](ASSUMPTIONS-REGISTER.md#a-007--local-json-persistence-is-insufficient-for-a-demonstrated-requirement).
@@ -192,6 +195,17 @@ The graph is authoritative; the display above is a navigation aid. Where depende
   - `KEYWORD_BAR_MET` → keep the dependency-light ranker; do not add embeddings or a new retrieval service.
   - `KEYWORD_BAR_MISSED` → improve tokenization/ranking and repeat the same evaluation; only study semantic retrieval if a material measured gap remains.
   - `INCONCLUSIVE` → add representative queries and keep the retrieval architecture unchanged.
+
+### GATE-12 — Enforce assumptions-register and roadmap structure in CI
+
+- **State:** PASSED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-00
+- **Observed gap:** The register and roadmap describe required fields, but no automated test currently prevents an edit from removing an OPEN item's owner, falsification method, evidence requirements, or scenario branch.
+- **Purpose:** Make the planning rules enforceable without adding a runtime dependency or maintaining a second source of truth.
+- **Exit criteria:** Tests parse the committed Markdown files; verify unique IDs, valid states, required fields for every OPEN item, recorded evidence for resolved assumptions, declared owners/dependencies for all gates, referential integrity for gate/assumption IDs, and that every READY gate has all mandatory dependencies PASSED; malformed fixtures are rejected; the core test and CLI-help workflows pass.
+- **Evidence:** Core tests, including the planning-contract tests, passed on Python 3.11 and 3.12 in [workflow run 39661636162](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39661636162) for commit [`8ec9644d`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/commit/8ec9644d6cf8f85ff125e7b4db70e29c7832dcc7). The OmniRoute Workbench checks also passed on the same commit [run 39661636207](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39661636207). The follow-up roadmap edit only records this result and the exact acceptance wording.
+- **Boundary:** Structural checks do not establish that cited evidence is true or that an owner decision is wise. Human review of substance remains necessary.
 
 ## Capability baseline already established
 
