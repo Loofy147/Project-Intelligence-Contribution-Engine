@@ -7,6 +7,7 @@ The Python CLI indexes readable project files, ranks keyword search results, inv
 ## Start here (including AI coding agents)
 
 - **Professional operating standard:** [Operating charter](docs/OPERATING-CHARTER.md)
+- **Related systems and project boundaries:** [Portfolio context](docs/PORTFOLIO-CONTEXT.md)
 - **Mandatory agent instructions:** [`AGENTS.md`](AGENTS.md)
 - **Do the task step by step:** [Execution playbook](docs/EXECUTION-PLAYBOOK.md)
 - **Choose a gate using dependencies and evidence:** [Dependency-gated roadmap](docs/ROADMAP.md)
