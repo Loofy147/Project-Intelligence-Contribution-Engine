@@ -12,7 +12,7 @@ The portfolio-level operating standard already exists in Notion. It is the canon
 
 **This file is a PIE-specific adapter, not a second portfolio operating standard.** The Notion standard owns the general process. This file records only the local engineering constraints and the minimum instructions needed when work happens in this repository. Do not copy portfolio goals, account lists, research findings, work items or decision records here when they already have canonical records elsewhere.
 
-## Context-first startup
+## Context acquisition before clarification
 
 Before asking the user for details, treating an omitted item as unknown, creating a work item, selecting a provider, or proposing a new architecture:
 
