@@ -1,71 +1,194 @@
-# Roadmap
+# Dependency-Gated Roadmap
 
-## M0 — Usable local search
+This roadmap is a dependency graph, not a calendar. Gate IDs are stable references, **not an implied sequence or date**. There are no target dates or time estimates. Progress is driven by evidence, resolved assumptions, and dependencies.
 
-- [x] Establish the product boundary and trust model.
-- [x] Build a standard-library indexer with exclusions and file-size limits.
-- [x] Store versioned local JSON index records and source digests.
-- [x] Implement ranked keyword search and snippets.
-- [x] Expose index/search through the CLI.
-- [x] Add GitHub Actions CI.
-- [x] Verify the CLI/test suite on Python 3.11 and 3.12.
+The canonical unresolved-question record is the [Assumptions Register](ASSUMPTIONS-REGISTER.md). A gate must not invent an answer to an OPEN assumption. When a registered answer or experiment produces an outcome, select the corresponding scenario below and continue along that branch.
 
-## M1 — Project inventory
+## How to use this roadmap
 
-- [x] Add optional project registration manifests.
-- [x] Detect common language extensions and project marker files without executing code.
-- [x] Produce Markdown/JSON reports with source locations.
-- [x] Separate observed tooling signals from inferred review hypotheses.
+A gate is a testable capability or decision boundary. Each gate declares an owner, dependencies, entry conditions, exit evidence, and the outcomes that determine what happens next.
 
-## M2 — Evidence-backed contribution drafts
+### Gate states
 
-- [x] Define a versioned task schema.
-- [x] Include source evidence, source digests, review steps, dependencies and acceptance criteria where canonical registry records supply them.
-- [x] Generate stable draft IDs from project identity and marker/record identity.
-- [x] Generate drafts/projections only; no automatic issue publishing or bounty creation.
-- [x] Add read-only source-evidence freshness checks and acceptance-criteria completeness reporting.
-- [x] Add explicit allowlists for Markdown checklist files and typed JSON registry work-item sources.
-- [x] Verify individual registry-record digests so unrelated registry edits do not stale other records.
-- [ ] Measure heuristic precision/false positives against a broader benchmark corpus.
-- [ ] Add explicit task approval states and a human-reviewed acceptance/closure protocol.
+- `PASSED`: every exit criterion is backed by inspected evidence.
+- `READY`: every dependency is PASSED and no required policy decision is OPEN.
+- `IN_PROGRESS`: work is underway; the exit criteria are not yet proven.
+- `BLOCKED`: a dependency, evidence gap, or required owner decision prevents execution.
+- `FAILED`: a test of the gate did not meet its predeclared acceptance criteria; repair or a different scenario is required.
+- `DEFERRED`: an explicit scope decision says not to pursue this gate now. It is not equivalent to PASSED.
 
-## M3 — Existing work sources
+### Execution and scenario rules
 
-- [x] Add public GitHub issue snapshots; preserve canonical issue URLs and exclude pull requests from issue records.
-- [x] Add public GitHub pull-request snapshots with branch references and draft status.
-- [x] Build a read-only work-plan projection that keeps canonical issues, PR proposals, registry items and engine drafts separate.
-- [x] Run inventory/issue/PR/work-plan evaluation against three real public project repositories in CI.
-- [x] Consume Context Swarm's existing `swarm/registry.json` active work items by explicit manifest configuration; preserve canonical IDs/status/criteria and do not duplicate them as GitHub issues.
-- [ ] Add explicit, evidence-based issue/PR linkage only when GitHub supplies a real relationship or a maintainer confirms it.
-- [ ] Detect issue/task staleness from closed status, changed source and fresh source snapshots.
-- [ ] Build a reviewed mapping from ContribQuest issues to accepted project/context records without cloning the issue backlog.
-- [ ] Add private-repository support only after designing a least-privilege auth boundary; do not put tokens in source or local manifests.
+1. Recheck the actual repository, tests, source records, and current CI. A past green run is historical evidence, not proof about the current head.
+2. A gate is READY only when all dependency gates are PASSED. An OPEN assumption blocks a gate only when that assumption is a required decision or input for the gate.
+3. Among READY gates, choose in this order: (a) safety/data-integrity risks, (b) the gate that unblocks the most downstream gates, (c) the smallest end-to-end test that yields decisive evidence, then (d) the stable gate ID as a tie-breaker.
+4. Freeze test labels, sampling rules, and acceptance thresholds before scoring a benchmark. Never move the threshold after viewing results to make a gate pass.
+5. Resolve an assumption only by its registered falsification method and evidence. Record outcome, evidence reference, and owner decision in [the register](ASSUMPTIONS-REGISTER.md).
+6. Mark a gate PASSED only after its exit criteria are checked individually. Source code existing, a generated report, a green unrelated workflow, or an AI recommendation is not sufficient.
+7. If a gate fails, follow its declared branch. Do not continue down a branch that depends on a failed gate unless its dependency is explicitly revised with evidence.
+8. Update this roadmap and the assumptions register in the same change when gate states, dependencies, outcomes, or underlying assumptions change.
 
-## M4 — Better project-specific analysis
+## Dependency graph
 
-- [ ] Parse structured readiness gates and deferred decisions in documentation-heavy repositories such as Contribution Network and Context Swarm.
-- [x] Consume declared repository-native work items from Context Swarm instead of inventing a competing backlog format.
-- [ ] Correlate existing issues with PRs only from explicit references and checked commit/file evidence.
-- [ ] Create a benchmark set with expected inventory and known open work.
-- [ ] Measure keyword-search quality before considering embeddings or semantic retrieval.
-- [ ] Revisit persistence only when evidence shows local JSON is insufficient.
+```text
+GATE-00 Current baseline (PASSED)
+  ├── GATE-01 Heuristic and retrieval quality (BLOCKED by A-001/A-002/A-003)
+  │     ├── GATE-04 Human approval and closure protocol
+  │     ├── GATE-05 Structured readiness and project-specific analysis (also depends on GATE-02)
+  │     └── GATE-06 AI review value experiment
+  ├── GATE-02 Source snapshot comparison and freshness (IN_PROGRESS)
+  │     ├── GATE-03 Explicit issue/PR relationships (also depends on A-005)
+  │     ├── GATE-04 Human approval and closure protocol (also depends on GATE-01)
+  │     └── GATE-05 Structured readiness and project-specific analysis
+  ├── GATE-07 Private-repository access decision (BLOCKED by A-006; conditional)
+  └── GATE-08 Persistence decision (BLOCKED by A-007; conditional)
 
-## M5 — ContribQuest workflow integration
+GATE-03 + GATE-04 + applicable access decision
+  └── GATE-09 ContribQuest read-only workflow integration
+        └── GATE-10 External writes (BLOCKED; separate approval and safety gate)
 
-- [ ] Map reviewed tasks to existing ContribQuest issues/work items without duplicating canonical records.
-- [ ] Track evidence lineage, acceptance criteria, responsible actor, validation results and freshness.
-- [ ] Keep XP/bounty status downstream of verified completion.
-- [ ] Keep all cross-repository writes disabled until permission scopes, preview, explicit confirmation, idempotency and rollback are implemented and tested.
+GATE-01 + A-004
+  └── GATE-06 AI review value experiment
+        └── Only if value is proven: durable cost/budget control design
+```
 
+The graph is authoritative; the display above is a navigation aid. Where dependency statements in a gate disagree with this graphic, fix the disagreement before selecting work.
 
-## M6 — Optional AI review and reuse governance
+## Gate register
 
-- [x] Maintain a dated, license-scoped open-source reuse catalog with source links and explicit adoption decisions.
-- [x] Add an opt-in OmniRoute adapter that transmits bounded task metadata rather than source files.
-- [x] Validate model responses and keep recommendations separate from task status and external actions.
-- [ ] Add labelled benchmark data and measure task-review precision/recall against human adjudication.
-- [ ] Add durable token/cost budgets and usage accounting before describing the gateway as a spending-control boundary.
+### GATE-00 — Establish a reproducible, read-only baseline
+
+- **State:** PASSED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** None
+- **Evidence already established:** Core test workflow passed on merged repository head [`82a1306`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39656752392); OmniRoute Workbench workflow passed on the same head [`82a1306`](https://github.com/Loofy147/Project-Intelligence-Contribution-Engine/actions/runs/39656752378). The repository has local indexing/search, inventory, evidence-backed task drafts, source-evidence freshness checks, public GitHub snapshots, typed registry projections, read-only work plans, and an optional metadata-only AI adapter.
+- **Exit criteria:** Core behavior and its current trust boundaries are documented; tests and workflows exist; no target repository writes occur.
+- **Limits:** These checks prove the engine's checked behavior only. They do not prove target application correctness, heuristic quality, model utility, or live deployment acceptance.
+
+### GATE-01 — Measure heuristic and retrieval quality
+
+- **State:** BLOCKED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-00
+- **Assumptions:** [A-001](ASSUMPTIONS-REGISTER.md#a-001--minimum-quality-required-for-heuristic-task-recommendations), [A-002](ASSUMPTIONS-REGISTER.md#a-002--benchmark-corpus-generalizes-beyond-the-current-smoke-test-projects), [A-003](ASSUMPTIONS-REGISTER.md#a-003--keyword-search-meets-a-useful-quality-bar-without-semantic-retrieval)
+- **Purpose:** Distinguish reliable observed candidates from noisy inventory hypotheses; determine whether keyword ranking satisfies the intended discovery task before changing retrieval architecture.
+- **Entry conditions:** Owner has frozen the heuristic precision acceptance target and the search quality measure before scoring; benchmark labels and sampling rules are defined; benchmark fixtures cover positive and negative cases and source types.
+- **Exit evidence:** Versioned benchmark corpus and label rules; reproducible command; machine-readable precision/recall and search metrics; per-repository/per-kind results; false-positive examples; held-out test; explicit decision.
+- **Scenario branches:**
+  - Target met and corpus coverage adequate → pass only for the measured envelope; add failed cases as regression fixtures.
+  - Heuristic target missed → tune/disable affected heuristic categories; rerun the frozen benchmark.
+  - Keyword quality missed → improve the current explainable ranker first; consider a new retrieval method only if the measured gap remains.
+  - Threshold rejected, sample inadequate, or evidence inconclusive → remain BLOCKED; no promotion or architecture expansion.
+- **Never infer:** No TODO marker does not prove no open work; an inventory hypothesis does not prove a missing capability.
+
+### GATE-02 — Compare source snapshots and expose freshness changes
+
+- **State:** IN_PROGRESS
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-00
+- **Purpose:** Make source changes visible across consecutive GitHub issue/PR snapshots without pretending that absence from a filtered query means closure, deletion, or completion.
+- **Implementation boundary:** Read-only comparison of same-repository, schema-valid snapshots. Preserve the canonical issue/PR IDs and URLs. Report observed changes such as state, title, labels, updated timestamp, and PR head SHA. When a filtered snapshot omits a prior record, say that it is absent from the query; do not label it closed. Report snapshot coverage.
+- **Exit criteria:**
+  - Reject mismatched repositories, invalid schema/collection, and incomplete input pairs.
+  - Detect changes between matching canonical records.
+  - Do not infer deletion, issue/PR linkage, or task completion from absence or similar titles.
+  - Include unit tests for stable records, state changes, updated timestamps, PR head changes, and incomplete query coverage.
+  - Expose a documented read-only CLI command and examples.
+  - Core tests and CLI help pass; output clearly identifies what it does not prove.
+- **Next gate:** On passing, GATE-03 can use explicit relation evidence and GATE-04 can implement a lifecycle that prevents stale records from being marked complete.
+
+### GATE-03 — Link issues and pull requests only with explicit evidence
+
+- **State:** BLOCKED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-02
+- **Assumptions:** [A-005](ASSUMPTIONS-REGISTER.md#a-005--explicit-evidence-is-available-to-link-related-github-issues-and-pull-requests)
+- **Purpose:** Correlate source records only where GitHub provides a canonical relationship or the maintainer records an explicit mapping.
+- **Exit criteria:** Relationship type, source ID, URL, evidence basis, and verification state are preserved. Tests prove title similarity alone cannot create a link. A missing relation remains “unknown,” not “unrelated” or “resolved.”
+- **Scenario branches:** If explicit references are common, implement only evidenced relation types. If sparse, preserve separate lists and use maintainer-confirmed mappings only. If inconclusive, do not add automatic linking.
+
+### GATE-04 — Define human approval, execution eligibility, and closure
+
+- **State:** BLOCKED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-01 and GATE-02
+- **Purpose:** Make the difference between detected, reviewed, approved, in progress, blocked, completed, rejected, and stale work explicit. Canonical-source status must not be overwritten by a derived projection.
+- **Exit criteria:** State transition contract, actor authority, evidence needed to approve/close, stale-evidence behavior, and retry/idempotency behavior are documented and tested. Missing criteria or stale source blocks approval/closure. Model output and freshness never approve work by themselves.
+- **Downstream rule:** XP, bounty state, external publishing, and merge actions stay downstream of verified completion and separate authorization.
+
+### GATE-05 — Interpret readiness/deferred decisions and project-specific evidence safely
+
+- **State:** BLOCKED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-01 and GATE-02
+- **Assumptions:** [A-008](ASSUMPTIONS-REGISTER.md#a-008--generic-structured-readiness-parsing-is-preferable-to-per-project-rules)
+- **Purpose:** Extract readiness gates, dependencies, deferred decisions, and assumptions from documentation-heavy projects without treating every checkbox or prose statement as active work.
+- **Exit criteria:** Small labelled corpus, source pointers, held-out evaluation, stale-evidence behavior, and explicit opt-in paths. Any parsed item remains review-required and linked to its source.
+- **Scenario branches:** If stable patterns recur, add a narrow opt-in parser. If formats differ, prefer repository-native registries/adapters. If evidence is weak, keep manual review rather than building a universal crawler.
+
+### GATE-06 — Prove or reject the incremental value of optional AI review
+
+- **State:** BLOCKED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-01
+- **Assumptions:** [A-004](ASSUMPTIONS-REGISTER.md#a-004--optional-ai-review-adds-enough-value-to-justify-its-maintenance-and-cost)
+- **Purpose:** Compare model-assisted recommendations with the same tasks reviewed without AI.
+- **Exit criteria:** Frozen model/configuration, blinded paired task set, human adjudication, quality/effort comparison, latency and observed cost where available, and an explicit owner decision.
+- **Scenario branches:** If incremental value is proven, keep AI optional and separately design durable cost controls before making budget guarantees. If not proven, keep experimental or de-emphasize it. If inconclusive, do not add model dependencies or expand paid routing.
+
+### GATE-07 — Decide whether private-repository access is actually required
+
+- **State:** BLOCKED (conditional)
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-00
+- **Assumptions:** [A-006](ASSUMPTIONS-REGISTER.md#a-006--private-repository-support-is-required-for-the-intended-evaluation-scope)
+- **Purpose:** Avoid adding credential and privacy risks without a required use case.
+- **Exit criteria:** Named required target, access need, sanitized fixture alternative, and owner decision.
+- **Scenario branches:** If private access is required, design least privilege, key storage, revocation, redaction, and tests before implementation. If public/sanitized scope is sufficient, explicitly defer auth and keep public read-only behavior.
+
+### GATE-08 — Decide whether local JSON persistence is insufficient
+
+- **State:** BLOCKED (conditional)
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-00
+- **Assumptions:** [A-007](ASSUMPTIONS-REGISTER.md#a-007--local-json-persistence-is-insufficient-for-a-demonstrated-requirement)
+- **Purpose:** Preserve the local-first dependency-light core unless a concrete, reproducible requirement disproves the current approach.
+- **Exit criteria:** Reproducible failure, explicit requirement, evaluation of a simpler file-based fix, and an architecture decision record.
+- **Scenario branches:** If a real persistence gap is proven, design migration, backup, recovery, and data ownership before choosing storage. If not, retain local JSON. No database is added on speculation.
+
+### GATE-09 — Integrate with ContribQuest as a read-only, source-linked workflow
+
+- **State:** BLOCKED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-03 and GATE-04; GATE-07 only if the required target becomes private
+- **Purpose:** Map reviewed candidates to existing ContribQuest work without cloning issues, then carry evidence lineage, acceptance criteria, responsible actor, validation, and freshness through the workflow.
+- **Exit criteria:** Source IDs preserved, candidate-to-canonical mapping reviewed, duplicate creation prevented, stale evidence rejected, and XP/bounty eligibility remains downstream of verified completion. Test both allowed and rejected transitions.
+- **Boundary:** Read-only integration is the default. No external issue, task, bounty, XP, or repository state is changed by an inventory or recommendation.
+
+### GATE-10 — Consider write-capable cross-repository automation
+
+- **State:** DEFERRED
+- **Owner:** Loofy147 (repository maintainer)
+- **Dependencies:** GATE-09 plus an explicit owner decision to pursue writes
+- **Entry condition:** A demonstrated use case cannot be met by a read-only workflow.
+- **Required safeguards:** Least-privilege scopes, target/repository allowlist, human-readable preview, explicit confirmation, idempotency keys, audit evidence, failure/rollback behavior, secret handling, and rejection tests for unauthorized operations.
+- **Exit criteria:** Security contract and negative tests pass; dry-run evidence demonstrates the exact proposed effect before any write; external acceptance tests prove correct scoped behavior. No part of this gate is implied by passing core tests.
+- **Scenario branches:** If no necessary write use case exists, remain DEFERRED. If approved, design/test a narrow write operation separately; never enable generic repo automation by default.
+
+## Capability baseline already established
+
+These capabilities are implemented and tested; they are not separate future gates:
+
+- Standard-library local indexing and ranked keyword search.
+- Lightweight project inventory and separate observed signals from hypotheses.
+- Evidence-backed marker drafts, manifest-allowlisted Markdown checklists and typed JSON registry projections.
+- Task-source freshness checks and missing-acceptance-criteria reporting.
+- Read-only public GitHub issue and pull-request snapshots and separate work-plan projection.
+- Optional metadata-only AI review through the separately documented OmniRoute Workbench.
+- License-scoped open-source reuse catalog and source links.
+
+See [Architecture](ARCHITECTURE.md), [Project Manifest](PROJECT-MANIFEST.md), [AI Review Gateway](AI-REVIEW-GATEWAY.md), and [Real-project Evaluation](REAL-PROJECT-EVALUATION.md). Historical evaluation data must be checked against current source revisions and workflow runs before it is treated as current evidence.
 
 ## Release gate
 
-Do not mark a milestone complete without reproducible commands, CI evidence, known limitations and links to code/results. Green inventory CI alone does not establish correctness of the target application or prove a reported issue is still unresolved.
+A gate is not complete until its exit criteria, reproducible commands, observed results, known limitations, and evidence links are recorded. Test and report the scenario result, then update both this roadmap and every affected assumptions-register item in the same change. Never convert a proposal, hypothesis, open PR, or AI recommendation into accepted work by inference.
