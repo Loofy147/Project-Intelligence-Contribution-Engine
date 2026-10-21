@@ -13,7 +13,7 @@ The [Professional Operating Charter](docs/OPERATING-CHARTER.md) is the baseline 
 ## Mandatory startup sequence
 
 1. Read this file and [README.md](README.md).
-2. Read [docs/OPERATING-CHARTER.md](docs/OPERATING-CHARTER.md), [docs/EXECUTION-PLAYBOOK.md](docs/EXECUTION-PLAYBOOK.md), [docs/REPOSITORY-MAP.md](docs/REPOSITORY-MAP.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ASSUMPTIONS-REGISTER.md](docs/ASSUMPTIONS-REGISTER.md).
+2. Read [docs/OPERATING-CHARTER.md](docs/OPERATING-CHARTER.md), [docs/EXECUTION-PLAYBOOK.md](docs/EXECUTION-PLAYBOOK.md), [docs/REPOSITORY-MAP.md](docs/REPOSITORY-MAP.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ASSUMPTIONS-REGISTER.md](docs/ASSUMPTIONS-REGISTER.md). Read [docs/PORTFOLIO-CONTEXT.md](docs/PORTFOLIO-CONTEXT.md) whenever a task crosses project or system boundaries.
 3. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) plus the relevant feature document before changing behavior.
 4. Inspect the actual working state: current branch, HEAD, uncommitted changes, target files, tests, and current CI where accessible. Never assume a previous conversation's state is current.
 5. Run the baseline checks when a working checkout and execution environment are available. Record failures before changing code so existing failures are not misreported as regressions.
@@ -26,6 +26,7 @@ Do not ask the user to repeat information already available in the repository or
 - `src/project_intelligence/`: core Python package and CLI.
 - `tests/`: behavior and regression tests.
 - `docs/OPERATING-CHARTER.md`: default professional operating responsibilities, research, evidence, authority, and definition of done.
+- `docs/PORTFOLIO-CONTEXT.md`: related project roles, current high-level boundaries, canonical source links, and rules for cross-project work.
 - `docs/ARCHITECTURE.md`: architecture, data flow, trust boundaries, and extension policy.
 - `docs/ROADMAP.md`: dependency-gated scenario graph; preserve its evidence-based completion rules and never substitute dates for dependencies.
 - `docs/PROJECT-MANIFEST.md`: project manifest and explicit planning-source allowlists.
